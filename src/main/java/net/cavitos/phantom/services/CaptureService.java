@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Named;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Optional;
@@ -44,12 +46,13 @@ public class CaptureService {
             logger.info("sending the get request to the web driver");            
             webDriver.get(url);
 
-            String fileName = takeScreenShot(webDriver);
+            String captureId = UUID.randomUUID().toString();
+            String fileName = takeScreenShot(webDriver, captureId);
             String title = webDriver.getTitle();
             webDriver.close();
 
             logger.info("closing driver connection...");
-            return Optional.of(new Capture(title, fileName));
+            return Optional.of(new Capture(title, captureId, fileName));
 
         } catch (Exception ex) {
             logger.error("can't capture URL: {} - ", url, ex);
@@ -57,15 +60,20 @@ public class CaptureService {
         }
     }
 
-    private String buildFileName() {
-        String fileName = UUID.randomUUID().toString();
-
-        return fileName + ".png";
+    public InputStream getImageFile(String captureId) throws Exception {
+        String name = buildFileName(captureId);
+        return new FileInputStream(name);
     }
 
-    private String takeScreenShot(WebDriver webDriver) throws Exception {
+    // ----------------------------------
+
+    private String buildFileName(String captureId) {
+        return imageStorePath + "/" + captureId + ".png";
+    }
+
+    private String takeScreenShot(WebDriver webDriver, String captureId) throws Exception {
         String title = webDriver.getTitle();
-        String fileName = imageStorePath + "/" + buildFileName();
+        String fileName = buildFileName(captureId);
 
         logger.info("generating image of url: {}", webDriver.getCurrentUrl());
         WebDriver superDriver = new Augmenter().augment(webDriver);
