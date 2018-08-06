@@ -4,17 +4,16 @@ jdk: openjdk10
 jobs:
   include:
     - stage: tests
-      script: mvn clean package
       deploy:
         provider: s3
-        endpoint: nyc3.digitaloceanspaces.com
+        endpoint: https://nyc3.digitaloceanspaces.com
         bucket: "cavitos-storage"
         access_key_id: $BUCKET_NAME
         secret_access_key: $BUCKET_SECRET
         upload_dir: artifacts/wcapture
+        skip_cleanup: true
         on:
           all_branches: true
-        skip_cleanup: true
 
     - stage: upload
       script: echo "uploading to artifactory"
