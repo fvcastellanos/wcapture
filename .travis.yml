@@ -12,3 +12,10 @@ script:
 before_deploy:
   - "sudo docker build -t wcapture:$BRANCH"
   - sudo docker images
+
+deploy:
+  - provider: script
+  script: sudo docker images
+  on:
+    branch: all
+    
