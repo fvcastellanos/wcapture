@@ -4,16 +4,16 @@ jdk: openjdk10
 jobs:
   include:
     - stage: tests
-      deploy:
-        provider: s3
-        # endpoint: https://nyc3.digitaloceanspaces.com
-        bucket: "cavitos-storage"
-        access_key_id: $BUCKET_NAME
-        secret_access_key: $BUCKET_SECRET
-        upload_dir: artifacts
-        skip_cleanup: true
-        on:
-          all_branches: true
+      # deploy:
+      #   provider: s3
+      #   endpoint: https://nyc3.digitaloceanspaces.com
+      #   bucket: "cavitos-storage"
+      #   access_key_id: $BUCKET_NAME
+      #   secret_access_key: $BUCKET_SECRET
+      #   upload_dir: artifacts
+      #   skip_cleanup: true
+      #   on:
+      #     all_branches: true
 
     - stage: upload
-      script: echo "uploading to artifactory"
+      script: ls target/
