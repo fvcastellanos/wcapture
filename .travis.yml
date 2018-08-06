@@ -12,8 +12,9 @@ jobs:
         access_key_id: $BUCKET_NAME
         secrect_access_key: $BUCKET_SECRET
         upload_dir: artifacts/wcapture
+        on:
+          all_branches: true
         skip_cleanup: true
 
     - stage: upload
       script: echo "uploading to artifactory"
-      
