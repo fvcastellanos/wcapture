@@ -1,19 +1,14 @@
 language: java
+sudo: enabled
 jdk: openjdk10
 
-jobs:
-  include:
-    - stage: tests
-      # deploy:
-      #   provider: s3
-      #   endpoint: https://nyc3.digitaloceanspaces.com
-      #   bucket: "cavitos-storage"
-      #   access_key_id: $BUCKET_NAME
-      #   secret_access_key: $BUCKET_SECRET
-      #   upload_dir: artifacts
-      #   skip_cleanup: true
-      #   on:
-      #     all_branches: true
+services:
+  - docker
 
-    - stage: upload
-      script: ls target/
+script:
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"  
+
+before_deploy:
+  - "sudo docker build -t wcapture:$BRANCH"
+  - sudo docker images
