@@ -1,11 +1,19 @@
 language: java
 jdk: openjdk10
 
-deploy:
-  provider: s3
-  endpoint: https://nyc3.digitaloceanspaces.com
-  bucket: "cavitos-storage"
-  access_key_id: $BUCKET_NAME
-  secrect_access_key: $BUCKET_SECRET
-  upload_dir: artifacts/wcapture
-  skip_cleanup: true
+jobs:
+  include:
+    - stage: tests
+      script: mvn clean package
+      deploy:
+        provider: s3
+        endpoint: https://nyc3.digitaloceanspaces.com
+        bucket: "cavitos-storage"
+        access_key_id: $BUCKET_NAME
+        secrect_access_key: $BUCKET_SECRET
+        upload_dir: artifacts/wcapture
+        skip_cleanup: true
+
+    - stage: upload
+      script: echo "uploading to artifactory"
+      
