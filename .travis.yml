@@ -10,7 +10,7 @@ jobs:
         bucket: "cavitos-storage"
         access_key_id: $BUCKET_NAME
         secret_access_key: $BUCKET_SECRET
-        upload_dir: artifacts/wcapture
+        upload_dir: artifacts
         skip_cleanup: true
         on:
           all_branches: true
