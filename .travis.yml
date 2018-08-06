@@ -12,7 +12,6 @@ jobs:
         access_key_id: $BUCKET_NAME
         secret_access_key: $BUCKET_SECRET
         upload_dir: artifacts/wcapture
-        region: nyc3
         on:
           all_branches: true
         skip_cleanup: true
