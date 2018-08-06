@@ -65,7 +65,7 @@ public class CaptureService {
         return new FileInputStream(name);
     }
 
-    // ----------------------------------
+    // ------------------------------------------------------------------------------------------------------
 
     private String buildFileName(String captureId) {
         return imageStorePath + "/" + captureId + ".png";
