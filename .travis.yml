@@ -7,10 +7,11 @@ services:
 
 script:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
-  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"  
+  - export IMAGE_TAG=$BRANCH | tr / _
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH, TAG=$IMAGE_TAG"  
 
 before_deploy:
-  - docker build -t wcapture:$BRANCH .
+  - docker build -t wcapture:$IMAGE_TAG .
   - docker images
 
 deploy:
