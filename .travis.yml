@@ -10,12 +10,12 @@ script:
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"  
 
 before_deploy:
-  - "sudo docker build -t wcapture:$BRANCH ."
-  - sudo docker images
+  - docker build -t wcapture:$BRANCH .
+  - docker images
 
 deploy:
   provider: script
-  script: "sudo docker images"
+  script: docker images
   on:
     all_branches: true
     
