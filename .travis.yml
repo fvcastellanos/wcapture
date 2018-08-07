@@ -1,0 +1,23 @@
+language: java
+sudo: enabled
+jdk: openjdk10
+
+services:
+  - docker
+
+script:
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+  - export IMAGE_TAG=$(echo $BRANCH | tr / _)
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH, TAG=$IMAGE_TAG"  
+
+before_deploy:
+  - docker build -t $REGISTRY_NAME/wcapture:$IMAGE_TAG .
+  - docker images
+  - echo "$REGISTRY_PWD" | docker login -u "$REGISTRY_USER" --password-stdin $REGISTRY_NAME
+
+deploy:
+  provider: script
+  script: docker push $REGISTRY_NAME/wcapture:$IMAGE_TAG
+  on:
+    all_branches: true
+    
