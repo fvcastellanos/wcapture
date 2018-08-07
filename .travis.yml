@@ -11,12 +11,13 @@ script:
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH, TAG=$IMAGE_TAG"  
 
 before_deploy:
-  - docker build -t wcapture:$IMAGE_TAG .
+  - docker build -t $REGISTRY_NAME/wcapture:$IMAGE_TAG .
   - docker images
+  - echo "$REGISTRY_PWD" | docker login -u "$REGISTRY_USER" --password-stdin $REGISTRY_NAME
 
 deploy:
   provider: script
-  script: docker images
+  script: docker push $REGISTRY_NAME/wcapture:$IMAGE_TAG
   on:
     all_branches: true
     
