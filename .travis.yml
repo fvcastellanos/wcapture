@@ -14,7 +14,7 @@ before_deploy:
   - sudo docker images
 
 deploy:
-  - provider: script
+  provider: script
   script: "sudo docker images"
   on:
     all_branches: true
