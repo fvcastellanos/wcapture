@@ -8,8 +8,9 @@ services:
 before_install:
  - docker run -d --name phantomjs -p 127.0.0.1:8910:8910 wernight/phantomjs phantomjs --webdriver=8910
  - docker run -d --name mysql-5.7.23 -p 127.0.0.1:13306:3306 -e MYSQL_ROOT_PASSWORD=r00t mysql:5.7.23
+ - ./scripts/bash/init
 
-install: ./scripts/bash/init
+install: true
 
 script:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
