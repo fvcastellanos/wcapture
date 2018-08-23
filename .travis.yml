@@ -1,6 +1,6 @@
 language: java
 sudo: enabled
-jdk: openjdk10
+jdk: openjdk8
 
 services:
   - docker
