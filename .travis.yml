@@ -5,13 +5,19 @@ jdk: openjdk10
 services:
   - docker
 
+before_install:
+ - docker run -d --name phantomjs -p 127.0.0.1:8910:8910 wernight/phantomjs phantomjs --webdriver=8910
+ - docker run -d --name mysql-5.7.23 -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=r00tmysql:5.7.23
+
+install: ./scripts/bash/init
+
 script:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - export IMAGE_TAG=$(echo $BRANCH | tr / _)
-  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH, TAG=$IMAGE_TAG"  
+  - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH, TAG=$IMAGE_TAG"
 
 before_deploy:
-  - docker build -t $REGISTRY_NAME/wcapture:$IMAGE_TAG .
+  - docker build -t $REGISTRY_NAME/wcapture:$IMAGE_TAG -f docker/Dockerfile .
   - docker images
   - echo "$REGISTRY_PWD" | docker login -u "$REGISTRY_USER" --password-stdin $REGISTRY_NAME
 
@@ -20,4 +26,3 @@ deploy:
   script: docker push $REGISTRY_NAME/wcapture:$IMAGE_TAG
   on:
     all_branches: true
-    
