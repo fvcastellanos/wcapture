@@ -10,10 +10,13 @@ before_install:
  - docker run -d --name mysql-5.7.23 -p 127.0.0.1:13306:3306 -e MYSQL_ROOT_PASSWORD=r00t mysql:5.7.23
  - ./scripts/bash/init
 
+install: /bin/true
+
 script:
   - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
   - export IMAGE_TAG=$(echo $BRANCH | tr / _)
   - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH, TAG=$IMAGE_TAG"
+  - mvn clean package
 
 before_deploy:
   - docker build -t $REGISTRY_NAME/wcapture:$IMAGE_TAG -f docker/Dockerfile .
