@@ -27,7 +27,7 @@ public class MySqlDataSourceConfiguration {
     private final String password;
     private final String database;
 
-    public MySqlDataSourceConfiguration(@Value("${net.cavitos.datasource.mysql.host:mysql}") final String host,
+    public MySqlDataSourceConfiguration(@Value("${net.cavitos.datasource.mysql.host:127.0.0.1}") final String host,
                                         @Value("${net.cavitos.datasource.mysql.port:13306}") final String port,
                                         @Value("${net.cavitos.datasource.mysql.username:wcapture}") final String username,
                                         @Value("${net.cavitos.datasource.mysql.password:Wc@ptur3$01@}") final String password,
