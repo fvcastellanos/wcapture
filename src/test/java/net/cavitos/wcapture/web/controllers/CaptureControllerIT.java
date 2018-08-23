@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 @WebAppConfiguration
 @SpringBootTest
-@TestPropertySource("classpath:application.properties")
+@TestPropertySource({"classpath:application.properties", "classpath:application-test.properties"})
 public class CaptureControllerIT {
 
     @Autowired
