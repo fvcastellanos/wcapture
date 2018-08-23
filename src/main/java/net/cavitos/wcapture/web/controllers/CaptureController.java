@@ -31,7 +31,7 @@ public class CaptureController {
     }
 
     @GetMapping("/")
-    public String main() {
+    public String capture() {
         return "main";
     }
 
@@ -56,13 +56,13 @@ public class CaptureController {
     }
 
     @GetMapping("/file/{capture-id}")
-    public void getFile(@PathVariable("capture-id") final String captureId, final HttpServletResponse response) throws IOException {
+    public void getCapturedUrl(@PathVariable("capture-id") final String captureId, final HttpServletResponse response) throws IOException {
         if (isBlank(captureId)) {
             LOGGER.error("No image information received");
             throw new RuntimeException("Can't download image");
         }
 
-        final InputStream inputStream = captureService.getImageFile(captureId);
+        final InputStream inputStream = captureService.getCapturedUrl(captureId);
         IOUtils.copy(inputStream, response.getOutputStream());
         response.setContentType("image/png");
         response.flushBuffer();
