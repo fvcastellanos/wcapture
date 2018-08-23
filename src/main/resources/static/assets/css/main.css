@@ -11,3 +11,11 @@
     margin-top: 0.5em;
     margin-bottom: 0.5em;
 }
+
+footer {
+    bottom: 0;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    background-color: lightgrey;
+}

@@ -3,27 +3,23 @@
         <div class="col-md-12">
             <h3>Welcome!</h3>
             <p>Please enter the URL of the site you want to capture</p>
-            <form method="post">
-                <div class="form-group">
-                    <label for="url">URL</label>
-                    <input type="text" name="url" placeholder="URL" class="form-control" value="" />
-                </div>
-
-                <input type="submit" class="btn btn-primary" value="Capture URL" />
-            </form>
-
             <#if error??>
                 <div class="alert alert-danger content-separator">
                     ${error}
                 </div>
             </#if>
-
-            <#if capture??>
-                <div class="content-separator">
-                    <h3>${capture.title}</h3>
-                    <img src="${capture.source}" class="img-fluid" alt="${capture.title}"/>
+            <form method="post">
+                <div class="form-group">
+                    <label for="url">URL</label>
+                    <input type="text" name="url" placeholder="URL" class="form-control"/>
                 </div>
-            </#if>
+                <div>
+                    <input type="submit" class="btn btn-primary" value="Capture URL" required/>
+                    <#if capture??>
+                        <a id="showCapture" target="_blank" href="/file/${capture.captureId}" class="btn btn-success">See Capture</a>
+                    </#if>
+                </div>
+            </form>
         </div>
     </div>
 </#assign>
