@@ -1,3 +1,5 @@
 #!/bin/sh
 
+sleep 30
+
 mysql -h 127.0.0.1 -u root -pr00t -P 13306 < scripts/sql/init.sql
