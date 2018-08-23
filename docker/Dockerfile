@@ -6,7 +6,7 @@ WORKDIR /opt/wcapture
 
 VOLUME /opt/wcapture/captures
 
-COPY ../target/wcapture.jar ./wcapture.jar
+COPY ./target/wcapture.jar ./wcapture.jar
 
 CMD ["java", "-jar", "-Xms128m", "-Xmx128m", "wcapture.jar"]
 
