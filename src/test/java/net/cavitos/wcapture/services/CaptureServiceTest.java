@@ -4,7 +4,7 @@ package net.cavitos.wcapture.services;
 import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.factories.PhantomJsFactory;
 import net.cavitos.wcapture.model.Capture;
-import net.cavitos.wcapture.repositories.CaptureRepository;
+import net.cavitos.wcapture.repositories.CaptureHistoryRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +15,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -32,7 +34,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class CaptureServiceTest {
 
     @Mock
-    private CaptureRepository captureRepository;
+    private CaptureHistoryRepository captureHistoryRepository;
 
     @Mock
     private PhantomJsFactory phantomJsFactory;
@@ -48,12 +50,12 @@ public class CaptureServiceTest {
     @Before
     public void setUp() {
         initMocks(this);
-        captureService = new CaptureService(captureRepository, phantomJsFactory);
+        captureService = new CaptureService(captureHistoryRepository, phantomJsFactory);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(captureRepository, phantomJsFactory);
+        verifyNoMoreInteractions(captureHistoryRepository, phantomJsFactory);
     }
 
     @Test
@@ -68,7 +70,7 @@ public class CaptureServiceTest {
 
         assertThat(capture.getCaptureId(), is(not(nullValue())));
 
-        verify(captureRepository).insert(any(CaptureHistory.class));
+        verify(captureHistoryRepository).insert(any(CaptureHistory.class));
         verify(phantomJsFactory).createWebDriver();
         verify(phantomJsFactory).takeScreenshot(eq(webDriver), anyString());
     }
@@ -96,5 +98,23 @@ public class CaptureServiceTest {
 
         verify(phantomJsFactory).getScreenshot(captureId);
     }
-    
+
+    @Test
+    public void testGetCaptureHistory() {
+        final CaptureHistory captureHistory = CaptureHistory
+                .builder()
+                .filename("FILENAME-A")
+                .url("http://www.fake.com")
+                .build();
+
+        when(captureHistoryRepository.findAll()).thenReturn(singletonList(captureHistory));
+
+        final List<CaptureHistory> captureHistories = captureService.getCaptureHistories();
+
+        assertThat(captureHistories.size(), is(1));
+        assertThat(captureHistories.get(0), is(captureHistory));
+
+        verify(captureHistoryRepository).findAll();
+    }
+
 }

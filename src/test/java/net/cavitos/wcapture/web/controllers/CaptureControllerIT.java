@@ -100,6 +100,16 @@ public class CaptureControllerIT {
         assertThat(mvcResult.getResponse().getBufferSize(), is(not(nullValue())));
     }
 
+    @Test
+    public void testGetCaptureHistoryView() throws Exception {
+        mockMvc()
+                .perform(get("/capture-history"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("capture-history"))
+                .andExpect(model().attribute("captures", is(not(nullValue()))));
+    }
+
+
     private MockMvc mockMvc() {
         return webAppContextSetup(webApplicationContext)
                 .build();

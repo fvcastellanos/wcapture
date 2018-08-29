@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="net.cavitos.wcapture.mapper.mybatis">
+
+    <resultMap id="captureHistoryMap" type="net.cavitos.wcapture.domain.CaptureHistory">
+        <constructor>
+            <arg column="id" javaType="java.lang.Long"/>
+            <arg column="created_date" javaType="java.time.Instant"/>
+            <arg column="modified_date" javaType="java.time.Instant"/>
+            <arg column="url" javaType="java.lang.String"/>
+            <arg column="filename" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+
+</mapper>
