@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @WebAppConfiguration
 @SpringBootTest
 @TestPropertySource({"classpath:application.properties", "classpath:application-test.properties"})
-public class CaptureControllerIT {
+public class CaptureControllerIT extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -108,7 +109,6 @@ public class CaptureControllerIT {
                 .andExpect(view().name("capture-history"))
                 .andExpect(model().attribute("captures", is(not(nullValue()))));
     }
-
 
     private MockMvc mockMvc() {
         return webAppContextSetup(webApplicationContext)
