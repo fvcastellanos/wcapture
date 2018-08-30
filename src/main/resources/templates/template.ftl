@@ -21,6 +21,9 @@
             <li class="nav-item active">
                 <a class="nav-link" href="/capture-history">Capture History</a>
             </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/about">About</a>
+            </li>
         </ul>
     </div>
 </nav>
