@@ -1,0 +1,19 @@
+version: '2'
+services:
+ phantomjs:
+   image: wernight/phantomjs
+   ports:
+     - 8910
+   command: phantomjs --webdriver=8910
+   restart: unless-stopped
+
+ wcapture:
+   image: {{image.name}}
+   ports:
+     - 8080
+   links:
+     - phantomjs
+#   environment:
+#   volumes:
+#     - "./captures:/opt/wcapture/captures"
+   restart: unless-stopped
