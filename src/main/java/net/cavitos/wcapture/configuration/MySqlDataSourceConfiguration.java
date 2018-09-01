@@ -40,8 +40,8 @@ public class MySqlDataSourceConfiguration {
 
     @Bean
     public DataSource mySqlDataSource(@Value("${spring.datasource.driverClassName:com.mysql.jdbc.Driver}") final String driverClassName) {
-        final String jdbcUrl = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull";
-        final HikariConfig hikariConfig = new HikariConfig();
+        final var jdbcUrl = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull";
+        final var hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driverClassName);
         hikariConfig.setJdbcUrl(jdbcUrl);
         hikariConfig.setUsername(this.username);
@@ -52,7 +52,7 @@ public class MySqlDataSourceConfiguration {
 
     @Bean
     public SqlSessionFactoryBean sqlSessionFactory(final DataSource mySqlDataSource) {
-        final SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        final var sqlSessionFactoryBean = new SqlSessionFactoryBean();
         sqlSessionFactoryBean.setDataSource(mySqlDataSource);
 
         return sqlSessionFactoryBean;

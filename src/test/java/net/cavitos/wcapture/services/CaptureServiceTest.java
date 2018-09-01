@@ -2,7 +2,7 @@ package net.cavitos.wcapture.services;
 
 
 import net.cavitos.wcapture.domain.CaptureHistory;
-import net.cavitos.wcapture.factories.PhantomJsFactory;
+import net.cavitos.wcapture.client.PhantomJsClient;
 import net.cavitos.wcapture.model.Capture;
 import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.junit.After;
@@ -35,7 +35,7 @@ public class CaptureServiceTest {
     private CaptureRepository captureRepository;
 
     @Mock
-    private PhantomJsFactory phantomJsFactory;
+    private PhantomJsClient phantomJsClient;
 
     @Mock
     private WebDriver webDriver;
@@ -48,53 +48,53 @@ public class CaptureServiceTest {
     @Before
     public void setUp() {
         initMocks(this);
-        captureService = new CaptureService(captureRepository, phantomJsFactory);
+        captureService = new CaptureService(captureRepository, phantomJsClient);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(captureRepository, phantomJsFactory);
+        verifyNoMoreInteractions(captureRepository, phantomJsClient);
     }
 
     @Test
     public void testCaptureUrl() throws IOException {
-        when(phantomJsFactory.createWebDriver()).thenReturn(webDriver);
+        when(phantomJsClient.createWebDriver()).thenReturn(webDriver);
 
-        final Optional<Capture> captureHolder = captureService.captureUrl("http://www.google.com");
+        final var captureHolder = captureService.captureUrl("http://www.google.com");
 
         assertThat(captureHolder.isPresent(), is(true));
 
-        final Capture capture = captureHolder.get();
+        final var capture = captureHolder.get();
 
         assertThat(capture.getCaptureId(), is(not(nullValue())));
 
         verify(captureRepository).insert(any(CaptureHistory.class));
-        verify(phantomJsFactory).createWebDriver();
-        verify(phantomJsFactory).takeScreenshot(eq(webDriver), anyString());
+        verify(phantomJsClient).createWebDriver();
+        verify(phantomJsClient).takeScreenshot(eq(webDriver), anyString());
     }
 
     @Test
     public void testCaptureUrl_Exception() throws MalformedURLException {
-        when(phantomJsFactory.createWebDriver()).thenReturn(null);
+        when(phantomJsClient.createWebDriver()).thenReturn(null);
 
-        final Optional<Capture> captureHolder = captureService.captureUrl("http://www.google.com");
+        final var captureHolder = captureService.captureUrl("http://www.google.com");
 
         assertThat(captureHolder.isPresent(), is(false));
 
-        verify(phantomJsFactory).createWebDriver();
+        verify(phantomJsClient).createWebDriver();
     }
 
     @Test
     public void testGetCapturedUrl() throws FileNotFoundException {
-        final String captureId = "captureId";
+        final var captureId = "captureId";
 
-        when(phantomJsFactory.getScreenshot(captureId)).thenReturn(inputStream);
+        when(phantomJsClient.getScreenshot(captureId)).thenReturn(inputStream);
 
         final InputStream inputStreamCapturedUrl = captureService.getCapturedUrl("captureId");
 
         assertThat(inputStreamCapturedUrl, is(inputStream));
 
-        verify(phantomJsFactory).getScreenshot(captureId);
+        verify(phantomJsClient).getScreenshot(captureId);
     }
     
 }

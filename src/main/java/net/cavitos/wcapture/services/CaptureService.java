@@ -1,7 +1,7 @@
 package net.cavitos.wcapture.services;
 
 import net.cavitos.wcapture.domain.CaptureHistory;
-import net.cavitos.wcapture.factories.PhantomJsFactory;
+import net.cavitos.wcapture.client.PhantomJsClient;
 import net.cavitos.wcapture.model.Capture;
 import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.openqa.selenium.WebDriver;
@@ -20,28 +20,24 @@ public class CaptureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureService.class);
 
     private final CaptureRepository captureRepository;
-    private final PhantomJsFactory phantomJsFactory;
+    private final PhantomJsClient phantomJsClient;
 
     public CaptureService(final CaptureRepository captureRepository,
-                          final PhantomJsFactory phantomJsFactory) {
+                          final PhantomJsClient phantomJsClient) {
         this.captureRepository = captureRepository;
-        this.phantomJsFactory = phantomJsFactory;
+        this.phantomJsClient = phantomJsClient;
     }
 
     public Optional<Capture> captureUrl(final String url) {
         try {
-            final WebDriver webDriver = phantomJsFactory.createWebDriver();
+            final var webDriver = phantomJsClient.createWebDriver();
             webDriver.get(url);
 
-            final String captureId = UUID.randomUUID().toString();
+            final var captureId = UUID.randomUUID().toString();
 
-            phantomJsFactory.takeScreenshot(webDriver, captureId);
+            phantomJsClient.takeScreenshot(webDriver, captureId);
 
-            final CaptureHistory captureHistory = CaptureHistory
-                    .builder()
-                    .filename(captureId)
-                    .url(url)
-                    .build();
+            final var captureHistory = buildCaptureHistory(captureId, url);
 
             captureRepository.insert(captureHistory);
 
@@ -56,7 +52,14 @@ public class CaptureService {
     }
 
     public InputStream getCapturedUrl(final String captureId) throws FileNotFoundException {
-        return phantomJsFactory.getScreenshot(captureId);
+        return phantomJsClient.getScreenshot(captureId);
     }
 
+    private CaptureHistory buildCaptureHistory(String captureId, String url) {
+
+        return CaptureHistory.builder()
+                .filename(captureId)
+                .url(url)
+                .build();
+    }
 }
