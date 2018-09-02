@@ -3,15 +3,15 @@ sudo: enabled
 jdk: openjdk10
 
 addons:
+  hosts:
+  - mysql-host
+  - phantom-host
   apt:
     sources:
       - mysql-5.7-trusty
     packages:
       - mysql-server
       - mysql-client
-    hosts:
-      - mysql-host
-      - phantom-host
 
 services:
   - docker
