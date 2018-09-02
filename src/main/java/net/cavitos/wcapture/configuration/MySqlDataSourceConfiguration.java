@@ -26,7 +26,7 @@ public class MySqlDataSourceConfiguration {
     private final String password;
     private final String database;
 
-    public MySqlDataSourceConfiguration(@Value("${net.cavitos.datasource.mysql.host:127.0.0.1}") final String host,
+    public MySqlDataSourceConfiguration(@Value("${net.cavitos.datasource.mysql.host:mysql-host}") final String host,
                                         @Value("${net.cavitos.datasource.mysql.port:3306}") final String port,
                                         @Value("${net.cavitos.datasource.mysql.username:wcapture}") final String username,
                                         @Value("${net.cavitos.datasource.mysql.password:Wc@ptur3$01@}") final String password,
@@ -40,7 +40,7 @@ public class MySqlDataSourceConfiguration {
 
     @Bean
     public DataSource mySqlDataSource(@Value("${spring.datasource.driverClassName:com.mysql.jdbc.Driver}") final String driverClassName) {
-        final var jdbcUrl = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull";
+        final var jdbcUrl = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false";
         final var hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(driverClassName);
         hikariConfig.setJdbcUrl(jdbcUrl);

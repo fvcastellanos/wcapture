@@ -1,4 +1,4 @@
-FROM openjdk:8u131-jre-alpine
+FROM openjdk:10.0.2-jre
 
 EXPOSE 8080
 

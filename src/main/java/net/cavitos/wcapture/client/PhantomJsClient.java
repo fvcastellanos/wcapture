@@ -28,7 +28,7 @@ public class PhantomJsClient {
     private final String webDriverURL;
     private final String imageStorePath;
 
-    public PhantomJsClient(@Value("${web.driver.url:http://127.0.0.1:8910}") final String webDriverURL,
+    public PhantomJsClient(@Value("${web.driver.url:http://phantom-host:8910}") final String webDriverURL,
                            @Value("${image.store.path:/opt/wcapture/captures}") final String imageStorePath) {
         this.webDriverURL = webDriverURL;
         this.imageStorePath = imageStorePath;

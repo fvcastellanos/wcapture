@@ -5,10 +5,13 @@ jdk: openjdk10
 addons:
   apt:
     sources:
-    - mysql-5.7-trusty
+      - mysql-5.7-trusty
     packages:
-    - mysql-server
-    - mysql-client
+      - mysql-server
+      - mysql-client
+    hosts:
+      - mysql-client
+      - phantom-client
 
 services:
   - docker
