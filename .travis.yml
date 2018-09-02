@@ -10,8 +10,8 @@ addons:
       - mysql-server
       - mysql-client
     hosts:
-      - mysql-client
-      - phantom-client
+      - mysql-host
+      - phantom-host
 
 services:
   - docker
