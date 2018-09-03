@@ -1,0 +1,13 @@
+version: '2'
+services:
+  wcapture:
+    image: {{image.name}}
+    ports:
+      - "8080"
+    external_links:
+      - "mysql-host:mysql-host"
+      - "phantom-host:phantom-host"
+#   environment:
+#   volumes:
+#     - "./captures:/opt/wcapture/captures"
+    restart: unless-stopped
