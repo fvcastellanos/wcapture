@@ -5,8 +5,8 @@ services:
     ports:
       - "8080"
     external_links:
-      - "mysql:mysql-host"
-      - "phantom:phantom-host"
+      - "mysql-host:mysql-host"
+      - "phantom-host:phantom-host"
 #   environment:
 #   volumes:
 #     - "./captures:/opt/wcapture/captures"
