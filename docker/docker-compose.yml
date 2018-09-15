@@ -5,9 +5,11 @@ services:
     ports:
       - "8080"
     external_links:
-      - "mysql-host:mysql-host"
-      - "phantom-host:phantom-host"
-#   environment:
-#   volumes:
-#     - "./captures:/opt/wcapture/captures"
+      - mysql-host
+      - phantom-host
     restart: unless-stopped
+    networks:
+      - docker_default
+networks:
+  docker_default:
+    external: true
