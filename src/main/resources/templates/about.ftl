@@ -30,6 +30,10 @@
                         <td>${gitCommitIdAbbrev}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Git Commit User Name</th>
+                        <td>${gitCommitUserName}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Git Commit Time</th>
                         <td>${gitCommitTime}</td>
                     </tr>

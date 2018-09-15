@@ -74,8 +74,9 @@ public class AboutController {
         model.addAttribute("gitCommitId", gitCommitId);
         model.addAttribute("gitCommitIdAbbrev", gitCommitIdAbbrev);
         model.addAttribute("gitCommitTime", gitCommitTime);
+        model.addAttribute("gitCommitUserName", gitCommitUserName);
         model.addAttribute("gitTags", gitTags);
-
+        
         return "about";
     }
 
