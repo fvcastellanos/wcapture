@@ -10,4 +10,4 @@ COPY ./target/wcapture.jar ./wcapture.jar
 
 COPY ./docker/docker-compose.yml /opt/dorefactor/docker-compose.yml
 
-CMD ["java", "-jar", "-Xms128m", "-Xmx128m", "wcapture.jar"]
+CMD ["java", "-jar", "-Xms64m", "-Xmx64m", "wcapture.jar"]
