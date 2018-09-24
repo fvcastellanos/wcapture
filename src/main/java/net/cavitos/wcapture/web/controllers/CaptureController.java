@@ -46,7 +46,7 @@ public class CaptureController {
         }
 
         LOGGER.info("capture request received for url: {}", url);
-        final Optional<Capture> captureHolder = captureService.captureUrl(url);
+        final var captureHolder = captureService.captureUrl(url);
 
         if (!captureHolder.isPresent()) {
             LOGGER.error("can't capture url: {}", url);
@@ -65,7 +65,7 @@ public class CaptureController {
             throw new RuntimeException("Can't download image");
         }
 
-        final InputStream inputStream = captureService.getCapturedUrl(captureId);
+        final var inputStream = captureService.getCapturedUrl(captureId);
         IOUtils.copy(inputStream, response.getOutputStream());
         response.setContentType("image/png");
         response.flushBuffer();

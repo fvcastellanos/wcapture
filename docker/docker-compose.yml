@@ -1,0 +1,15 @@
+version: '2'
+services:
+  wcapture:
+    image: {{image.name}}
+    ports:
+      - "8080"
+    external_links:
+      - mysql-host
+      - phantom-host
+    restart: unless-stopped
+    networks:
+      - docker_default
+networks:
+  docker_default:
+    external: true

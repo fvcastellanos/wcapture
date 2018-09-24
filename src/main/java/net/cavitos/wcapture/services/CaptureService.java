@@ -1,9 +1,9 @@
 package net.cavitos.wcapture.services;
 
 import net.cavitos.wcapture.domain.CaptureHistory;
-import net.cavitos.wcapture.factories.PhantomJsFactory;
+import net.cavitos.wcapture.client.PhantomJsClient;
 import net.cavitos.wcapture.model.Capture;
-import net.cavitos.wcapture.repositories.CaptureHistoryRepository;
+import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,31 +19,27 @@ public class CaptureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureService.class);
 
-    private final CaptureHistoryRepository captureHistoryRepository;
-    private final PhantomJsFactory phantomJsFactory;
+    private final CaptureRepository captureRepository;
+    private final PhantomJsClient phantomJsClient;
 
-    public CaptureService(final CaptureHistoryRepository captureHistoryRepository,
-                          final PhantomJsFactory phantomJsFactory) {
-        this.captureHistoryRepository = captureHistoryRepository;
-        this.phantomJsFactory = phantomJsFactory;
+    public CaptureService(final CaptureRepository captureRepository,
+                          final PhantomJsClient phantomJsClient) {
+        this.captureRepository = captureRepository;
+        this.phantomJsClient = phantomJsClient;
     }
 
     public Optional<Capture> captureUrl(final String url) {
         try {
-            final WebDriver webDriver = phantomJsFactory.createWebDriver();
+            final var webDriver = phantomJsClient.createWebDriver();
             webDriver.get(url);
 
-            final String captureId = UUID.randomUUID().toString();
+            final var captureId = UUID.randomUUID().toString();
 
-            phantomJsFactory.takeScreenshot(webDriver, captureId);
+            phantomJsClient.takeScreenshot(webDriver, captureId);
 
-            final CaptureHistory captureHistory = CaptureHistory
-                    .builder()
-                    .filename(captureId)
-                    .url(url)
-                    .build();
+            final var captureHistory = buildCaptureHistory(captureId, url);
 
-            captureHistoryRepository.insert(captureHistory);
+            captureRepository.insert(captureHistory);
 
             webDriver.close();
 
@@ -57,11 +52,14 @@ public class CaptureService {
     }
 
     public InputStream getCapturedUrl(final String captureId) throws FileNotFoundException {
-        return phantomJsFactory.getScreenshot(captureId);
+        return phantomJsClient.getScreenshot(captureId);
     }
 
-    public List<CaptureHistory> getCaptureHistories() {
-        return captureHistoryRepository.findAll();
-    }
+    private CaptureHistory buildCaptureHistory(String captureId, String url) {
 
+        return CaptureHistory.builder()
+                .filename(captureId)
+                .url(url)
+                .build();
+    }
 }

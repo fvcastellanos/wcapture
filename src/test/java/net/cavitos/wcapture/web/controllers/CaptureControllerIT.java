@@ -86,17 +86,17 @@ public class CaptureControllerIT extends AbstractTransactionalJUnit4SpringContex
         postResultActions.andExpect(view().name("main"));
         postResultActions.andExpect(model().attribute("capture", hasProperty("captureId", is(not(nullValue())))));
 
-        final MvcResult postMvcResult = postResultActions.andExpect(status().isOk()).andReturn();
+        final var postMvcResult = postResultActions.andExpect(status().isOk()).andReturn();
 
-        final Capture capture = (Capture) postMvcResult.getModelAndView().getModel().get("capture");
+        final var capture = (Capture) postMvcResult.getModelAndView().getModel().get("capture");
 
-        final ResultActions resultActions = mockMvc()
+        final var resultActions = mockMvc()
                 .perform(
                         get("/file/" + capture.getCaptureId()))
                 .andExpect(status().isOk());
 
 
-        final MvcResult mvcResult = resultActions.andExpect(status().isOk()).andReturn();
+        final var mvcResult = resultActions.andExpect(status().isOk()).andReturn();
 
         assertThat(mvcResult.getResponse().getBufferSize(), is(not(nullValue())));
     }

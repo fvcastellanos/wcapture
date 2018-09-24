@@ -1,4 +1,4 @@
-FROM openjdk:8u131-jre-alpine
+FROM openjdk:10.0.2-jre
 
 EXPOSE 8080
 
@@ -8,6 +8,6 @@ VOLUME /opt/wcapture/captures
 
 COPY ./target/wcapture.jar ./wcapture.jar
 
-CMD ["java", "-jar", "-Xms128m", "-Xmx128m", "wcapture.jar"]
+COPY ./docker/docker-compose.yml /opt/dorefactor/docker-compose.yml
 
-
+CMD ["java", "-jar", "-Xms64m", "-Xmx64m", "wcapture.jar"]
