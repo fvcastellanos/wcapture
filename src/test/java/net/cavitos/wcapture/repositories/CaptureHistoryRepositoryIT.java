@@ -17,10 +17,10 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 @SpringBootTest
-public class CaptureRepositoryIT extends AbstractTransactionalJUnit4SpringContextTests {
+public class CaptureHistoryRepositoryIT extends AbstractTransactionalJUnit4SpringContextTests {
 
     @Autowired
-    private CaptureRepository captureRepository;
+    private CaptureHistoryRepository captureHistoryRepository;
 
     @Before
     public void setUp() {
@@ -35,7 +35,7 @@ public class CaptureRepositoryIT extends AbstractTransactionalJUnit4SpringContex
                 .url("http://www.fake.com")
                 .build();
 
-        captureRepository.insert(captureHistory);
+        captureHistoryRepository.insert(captureHistory);
 
         final List<CaptureHistory> expectedCaptureHistories = getAllCaptureHistories();
 
@@ -50,8 +50,61 @@ public class CaptureRepositoryIT extends AbstractTransactionalJUnit4SpringContex
         assertThat(expectedCaptureHistory.getUrl(), is(captureHistory.getUrl()));
     }
 
+    @Test
+    public void testFindAll() {
+        final CaptureHistory captureHistory = CaptureHistory
+                .builder()
+                .filename("FILENAME-A")
+                .url("http://www.fake.com")
+                .build();
+
+        captureHistoryRepository.insert(captureHistory);
+
+        final List<CaptureHistory> captureHistories = captureHistoryRepository.findAll();
+
+        assertThat(captureHistories.size(), is(1));
+    }
+
+    @Test
+    public void testFindAll_WithoutCache() {
+        insertCaptureHistory("FILENAME-A", "http://www.fake.com");
+
+        final List<CaptureHistory> captureHistories = captureHistoryRepository.findAll();
+
+        assertThat(captureHistories.size(), is(1));
+
+        insertCaptureHistory("FILENAME-B", "http://www.fake1.com");
+
+        assertThat(captureHistories.size(), is(1));
+    }
+
+    @Test
+    public void testFindAll_WithCache() {
+        insertCaptureHistory("FILENAME-A", "http://www.fake.com");
+
+        final List<CaptureHistory> firstCaptureHistories = captureHistoryRepository.findAll();
+
+        assertThat(firstCaptureHistories.size(), is(1));
+
+        final CaptureHistory captureHistory = CaptureHistory
+                .builder()
+                .filename("FILENAME-B")
+                .url("http://www.fake2.com")
+                .build();
+
+        captureHistoryRepository.insert(captureHistory);
+
+        final List<CaptureHistory> secondCaptureHistories = captureHistoryRepository.findAll();
+
+        assertThat(secondCaptureHistories.size(), is(2));
+    }
+
     private List<CaptureHistory> getAllCaptureHistories() {
         return jdbcTemplate.query("SELECT * FROM capture_history", this::captureHistoryRowMapper);
+    }
+
+    private void insertCaptureHistory(final String url, final String filename) {
+        jdbcTemplate.update("INSERT INTO capture_history(url, filename) VALUES (?, ?)", url, filename);
     }
 
     private CaptureHistory captureHistoryRowMapper(final ResultSet resultSet, final int rowNumber) throws SQLException {

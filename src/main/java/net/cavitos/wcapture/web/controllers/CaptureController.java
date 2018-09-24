@@ -1,6 +1,7 @@
 package net.cavitos.wcapture.web.controllers;
 
 import net.cavitos.wcapture.model.Capture;
+import net.cavitos.wcapture.model.CaptureHistoryResource;
 import net.cavitos.wcapture.services.CaptureService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -15,8 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Controller
@@ -66,6 +69,17 @@ public class CaptureController {
         IOUtils.copy(inputStream, response.getOutputStream());
         response.setContentType("image/png");
         response.flushBuffer();
+    }
+
+    @GetMapping("/capture-history")
+    public String getCaptureHistory(final Model model) {
+        model.addAttribute("captures",
+                           captureService.getCaptureHistories()
+                                         .stream()
+                                         .map(captureHistory -> new CaptureHistoryResource(Date.from(captureHistory.getCreatedDate()), captureHistory.getUrl()))
+                                         .collect(toList()));
+
+        return "capture-history";
     }
 
     private boolean isValidUrl(final String url) {

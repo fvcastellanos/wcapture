@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-md-12">
             <h3>About</h3>
-            <div class="abount-container">
+            <div class="container">
                 <table class="table table-hover">
                     <tbody>
                     <tr>
