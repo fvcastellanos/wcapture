@@ -1,16 +1,16 @@
 package net.cavitos.wcapture.services;
 
-import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.client.PhantomJsClient;
+import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.model.Capture;
-import net.cavitos.wcapture.repositories.CaptureRepository;
-import org.openqa.selenium.WebDriver;
+import net.cavitos.wcapture.repositories.CaptureHistoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,10 +19,10 @@ public class CaptureService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureService.class);
 
-    private final CaptureRepository captureRepository;
+    private final CaptureHistoryRepository captureRepository;
     private final PhantomJsClient phantomJsClient;
 
-    public CaptureService(final CaptureRepository captureRepository,
+    public CaptureService(final CaptureHistoryRepository captureRepository,
                           final PhantomJsClient phantomJsClient) {
         this.captureRepository = captureRepository;
         this.phantomJsClient = phantomJsClient;
@@ -53,6 +53,10 @@ public class CaptureService {
 
     public InputStream getCapturedUrl(final String captureId) throws FileNotFoundException {
         return phantomJsClient.getScreenshot(captureId);
+    }
+
+    public List<CaptureHistory> getCaptureHistories() {
+        return captureRepository.findAll();
     }
 
     private CaptureHistory buildCaptureHistory(String captureId, String url) {

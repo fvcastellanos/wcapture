@@ -1,10 +1,9 @@
 package net.cavitos.wcapture.services;
 
 
-import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.client.PhantomJsClient;
-import net.cavitos.wcapture.model.Capture;
-import net.cavitos.wcapture.repositories.CaptureRepository;
+import net.cavitos.wcapture.domain.CaptureHistory;
+import net.cavitos.wcapture.repositories.CaptureHistoryRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -32,7 +30,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class CaptureServiceTest {
 
     @Mock
-    private CaptureRepository captureRepository;
+    private CaptureHistoryRepository captureRepository;
 
     @Mock
     private PhantomJsClient phantomJsClient;
@@ -58,7 +56,7 @@ public class CaptureServiceTest {
 
     @Test
     public void testCaptureUrl() throws IOException {
-        when(phantomJsClient.createWebDriver()).thenReturn(webDriver);
+       when(phantomJsClient.createWebDriver()).thenReturn(webDriver);
 
         final var captureHolder = captureService.captureUrl("http://www.google.com");
 
