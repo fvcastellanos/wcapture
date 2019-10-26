@@ -11,13 +11,13 @@ jobs:
       wcapturedb:
         image: mysql:8.0.18
         ports:
-          - 3306:3306
+          - 3306
         env:
           MYSQL_ROOT_PASSWORD: r00t
           MYSQL_DATABASE: test
           MYSQL_USER: wcapture
           MYSQL_PASSWORD: Wc@ptur3$01@
-
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v1
