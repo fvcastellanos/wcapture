@@ -4,21 +4,21 @@ on: [push]
 
 jobs:
 
-  mysql:
-    runs-on: ubuntu-latest
-      services:
-        wcapturedb:
-          image: mysql:8.0.18
-          ports:
-            - 3306:3306
-          env:
-            MYSQL_ROOT_PASSWORD: r00t
-            MYSQL_DATABASE: test
-            MYSQL_USER: wcapture
-            MYSQL_PASSWORD: Wc@ptur3$01@
-
   build:
     runs-on: ubuntu-latest
+
+    services:
+      wcapturedb:
+        image: mysql:8.0.18
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: r00t
+          MYSQL_DATABASE: test
+          MYSQL_USER: wcapture
+          MYSQL_PASSWORD: Wc@ptur3$01@
+
+
     steps:
       - uses: actions/checkout@v1
       - name: Set up JDK 11
