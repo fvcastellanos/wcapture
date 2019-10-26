@@ -22,7 +22,8 @@ jobs:
         image: jealvarez/phantomjs
         ports:
           - 8910
-        options: --health-cmd="curl localhost:8910" --health-interval=10s --health-timeout=5s --health-retries=3
+#        options: --health-cmd="curl localhost:8910" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --entrypoint dumb-init
 
     steps:
       - uses: actions/checkout@v1
