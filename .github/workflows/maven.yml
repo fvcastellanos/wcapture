@@ -22,8 +22,7 @@ jobs:
         image: wernight/phantomjs
         ports:
           - 8910
-        with:
-          entrypoint: phantomjs --webdriver=8910
+        options: --entrypoin="phantomjs --webdriver=8910"
 
     steps:
       - uses: actions/checkout@v1
