@@ -18,6 +18,11 @@ jobs:
           MYSQL_USER: wcapture
           MYSQL_PASSWORD: Wc@ptur3$01@
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      phantom:
+        image: wernight/phantomjs
+        ports:
+          - 8910
+        command: phantomjs --webdriver=8910
 
     steps:
       - uses: actions/checkout@v1
