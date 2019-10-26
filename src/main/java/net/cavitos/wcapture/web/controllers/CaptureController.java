@@ -1,6 +1,5 @@
 package net.cavitos.wcapture.web.controllers;
 
-import net.cavitos.wcapture.model.Capture;
 import net.cavitos.wcapture.services.CaptureService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -13,9 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Optional;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

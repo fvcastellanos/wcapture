@@ -1,16 +1,18 @@
-version: '2'
+version: '3'
+
 services:
+
   mysql:
-    image: mysql:5.7.21
+    image: mysql:8.0.18
+    ports:
+      - 3306:3306
     container_name: mysql-host
     environment:
-      - MYSQL_ROOT_PASSWORD=r00t
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: r00t
+
   phantomjs:
     image: wernight/phantomjs
     ports:
-      - "8910:8910"
+      - 8910:8910
     container_name: phantom-host
     command: phantomjs --webdriver=8910
-    restart: unless-stopped
