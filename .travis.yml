@@ -1,25 +1,20 @@
 language: java
 sudo: enabled
-jdk: openjdk10
+jdk: openjdk11
 
 addons:
   hosts:
-    - mysql-host
-    - phantom-host
+    - wcapturedb
+    - phantom
   apt:
-    sources:
-      - mysql-5.7-trusty
     packages:
-      - mysql-server
       - mysql-client
 
 services:
   - docker
 
 before_install:
-  - sudo mysql -e "use mysql; update user set authentication_string=PASSWORD('r00t') where User='root'; update user set plugin='mysql_native_password';FLUSH PRIVILEGES;"
-  - sudo mysql_upgrade -u root -pr00t
-  - sudo service mysql restart
+  - docker run -d --name mysql -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=r00t mysql:8.0.18
   - docker run -d --name phantomjs -p 127.0.0.1:8910:8910 wernight/phantomjs phantomjs --webdriver=8910
   - ./scripts/bash/init
 
