@@ -15,7 +15,7 @@ class PhantomJsClientTest {
 
     @BeforeEach
     void setUp() {
-        phantomJsClient = new PhantomJsClient("https://phantom:8910",
+        phantomJsClient = new PhantomJsClient("http://phantom:8910",
                                               System.getProperty("java.io.tmpdir"));
     }
 
