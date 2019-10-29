@@ -1,18 +1,35 @@
 package net.cavitos.wcapture.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
+@Entity
+@Table(name = "capture_history")
+@Data
 @Builder
-@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CaptureHistory {
 
-    private final long id;
-    private final Instant createdDate;
-    private final Instant modifiedDate;
-    private final String url;
-    private final String filename;
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    @Column
+    private long id;
+
+    @Column
+    private String url;
+
+    @Column
+    private String filename;
 
 }

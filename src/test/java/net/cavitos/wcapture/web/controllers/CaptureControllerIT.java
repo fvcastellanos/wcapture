@@ -1,23 +1,23 @@
 package net.cavitos.wcapture.web.controllers;
 
 import net.cavitos.wcapture.model.Capture;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,21 +26,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+@Transactional
 @WebAppConfiguration
 @SpringBootTest
 @TestPropertySource({"classpath:application.properties", "classpath:application-test.properties"})
-public class CaptureControllerIT {
+class CaptureControllerIT {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         new TestContextManager(getClass()).prepareTestInstance(this);
     }
 
     @Test
-    public void testGetCaptureMainView() throws Exception {
+    void testGetCaptureMainView() throws Exception {
         mockMvc()
                 .perform(get("/"))
                 .andExpect(status().isOk())
@@ -48,7 +49,7 @@ public class CaptureControllerIT {
     }
 
     @Test
-    public void testPostCaptureUrl() throws Exception {
+    void testPostCaptureUrl() throws Exception {
         mockMvc()
                 .perform(
                         post("/")
@@ -61,7 +62,7 @@ public class CaptureControllerIT {
     }
 
     @Test
-    public void testPostCapture_InvalidUrl() throws Exception {
+    void testPostCapture_InvalidUrl() throws Exception {
         mockMvc()
                 .perform(
                         post("/")
@@ -74,7 +75,7 @@ public class CaptureControllerIT {
     }
 
     @Test
-    public void testGetCapturedUrl() throws Exception {
+    void testGetCapturedUrl() throws Exception {
         final ResultActions postResultActions = mockMvc()
                 .perform(
                         post("/")
@@ -97,13 +98,12 @@ public class CaptureControllerIT {
 
         final var mvcResult = resultActions.andExpect(status().isOk()).andReturn();
 
-        assertThat(mvcResult.getResponse().getBufferSize(), is(not(nullValue())));
+        assertThat(mvcResult.getResponse().getBufferSize()).isNotNull();
     }
 
     private MockMvc mockMvc() {
         return webAppContextSetup(webApplicationContext)
                 .build();
-
     }
 
 }

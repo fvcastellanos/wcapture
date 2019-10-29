@@ -1,10 +1,9 @@
 package net.cavitos.wcapture.services;
 
-import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.client.PhantomJsClient;
+import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.model.Capture;
 import net.cavitos.wcapture.repositories.CaptureRepository;
-import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -39,7 +38,7 @@ public class CaptureService {
 
             final var captureHistory = buildCaptureHistory(captureId, url);
 
-            captureRepository.insert(captureHistory);
+            captureRepository.save(captureHistory);
 
             webDriver.close();
 
@@ -55,7 +54,7 @@ public class CaptureService {
         return phantomJsClient.getScreenshot(captureId);
     }
 
-    private CaptureHistory buildCaptureHistory(String captureId, String url) {
+    private CaptureHistory buildCaptureHistory(final String captureId, final String url) {
 
         return CaptureHistory.builder()
                 .filename(captureId)

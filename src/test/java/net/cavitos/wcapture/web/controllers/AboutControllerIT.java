@@ -1,7 +1,7 @@
 package net.cavitos.wcapture.web.controllers;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestContextManager;
@@ -22,18 +22,18 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @WebAppConfiguration
 @SpringBootTest
 @TestPropertySource({"classpath:application.properties", "classpath:application-test.properties", "classpath:git.properties"})
-public class AboutControllerIT {
+class AboutControllerIT {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         new TestContextManager(getClass()).prepareTestInstance(this);
     }
 
     @Test
-    public void testGetAboutView() throws Exception {
+    void testGetAboutView() throws Exception {
         mockMvc()
                 .perform(get("/about"))
                 .andExpect(status().isOk())
@@ -51,7 +51,6 @@ public class AboutControllerIT {
     private MockMvc mockMvc() {
         return webAppContextSetup(webApplicationContext)
                 .build();
-
     }
 
 }
