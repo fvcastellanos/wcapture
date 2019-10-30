@@ -10,5 +10,6 @@ import lombok.Getter;
 public class Capture {
 
     private final String captureId;
+    private final String storedPath;
 
 }

@@ -12,11 +12,6 @@ import net.cavitos.wcapture.client.model.CaptureRequest;
 import net.cavitos.wcapture.client.model.CaptureResponse;
 import net.cavitos.wcapture.client.model.ErrorResponse;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-
-
 public class CaptureApiDefaultClient implements CaptureApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(CaptureApiDefaultClient.class);
@@ -43,10 +38,12 @@ public class CaptureApiDefaultClient implements CaptureApiClient {
             var request = buildRequest(requestId, url);
             var responseEntity = restOperations.postForEntity(captureApiUrl, request, String.class);
 
-            return Match(responseEntity.getStatusCode()).of(
-                    Case($(HttpStatus.OK), Either.right(objectMapper.readValue(responseEntity.getBody(), CaptureResponse.class))),
-                    Case($(HttpStatus::isError), Either.left(objectMapper.readValue(responseEntity.getBody(), ErrorResponse.class)))
-            );
+            if (responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+
+                return Either.right(objectMapper.readValue(responseEntity.getBody(), CaptureResponse.class));
+            }
+
+            return Either.left(objectMapper.readValue(responseEntity.getBody(), ErrorResponse.class));
 
         } catch(Exception ex) {
 
