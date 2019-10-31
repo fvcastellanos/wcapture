@@ -1,6 +1,7 @@
 package net.cavitos.wcapture.services;
 
-import net.cavitos.wcapture.client.PhantomJsClient;
+import io.vavr.control.Either;
+import net.cavitos.wcapture.client.CaptureApiClient;
 import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -9,16 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.openqa.selenium.WebDriver;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 
+import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildCaptureResponse;
+import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildErrorResponse;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -27,69 +28,74 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CaptureServiceTest {
 
+    private static final String REQUEST_ID = "1234";
+    private static final String URL = "https://gog.com";
+
     @Mock
     private CaptureRepository captureRepository;
 
     @Mock
-    private PhantomJsClient phantomJsClient;
-
-    @Mock
-    private WebDriver webDriver;
-
-    @Mock
-    private InputStream inputStream;
+    private CaptureApiClient captureApiClient;
 
     private CaptureService captureService;
 
     @BeforeEach
     void setUp() {
-        captureService = new CaptureService(captureRepository, phantomJsClient);
+        captureService = new CaptureService(captureRepository, captureApiClient);
     }
 
     @AfterEach
     void tearDown() {
-        verifyNoMoreInteractions(captureRepository, phantomJsClient);
+        verifyNoMoreInteractions(captureRepository, captureApiClient);
     }
 
     @Test
-    void testCaptureUrl() throws IOException {
-        when(phantomJsClient.createWebDriver()).thenReturn(webDriver);
+    void testCaptureUrl() {
 
-        final var captureHolder = captureService.captureUrl("http://www.google.com");
+        when(captureApiClient.captureUrl(REQUEST_ID, URL))
+            .thenReturn(Either.right(buildCaptureResponse(REQUEST_ID, URL)));
 
-        assertThat(captureHolder.isPresent()).isTrue();
+        when(captureRepository.save(any(CaptureHistory.class)))
+                .thenReturn(new CaptureHistory());
 
-        final var capture = captureHolder.get();
+        final var result = captureService.captureUrl(REQUEST_ID, URL);
+
+        assertThat(result.isRight()).isTrue();
+
+        final var capture = result.get();
 
         assertThat(capture.getCaptureId()).isNotNull();
 
         verify(captureRepository).save(any(CaptureHistory.class));
-        verify(phantomJsClient).createWebDriver();
-        verify(phantomJsClient).takeScreenshot(eq(webDriver), anyString());
+        verify(captureApiClient).captureUrl(REQUEST_ID, URL);
     }
 
     @Test
-    void testCaptureUrl_Exception() throws MalformedURLException {
-        when(phantomJsClient.createWebDriver()).thenReturn(null);
+    void testCaptureUrlReturnError() {
 
-        final var captureHolder = captureService.captureUrl("http://www.google.com");
+        when(captureApiClient.captureUrl(REQUEST_ID, URL))
+                .thenReturn(Either.left(buildErrorResponse(REQUEST_ID, "something went wrong")));
 
-        assertThat(captureHolder.isPresent()).isFalse();
+        final var result = captureService.captureUrl(REQUEST_ID, URL);
 
-        verify(phantomJsClient).createWebDriver();
+        assertThat(result.isLeft()).isTrue();
+        assertThat(result.getLeft()).isEqualTo("something went wrong");
+
+        verify(captureRepository).save(any(CaptureHistory.class));
+        verify(captureApiClient).captureUrl(REQUEST_ID, URL);
     }
 
     @Test
-    void testGetCapturedUrl() throws FileNotFoundException {
-        final var captureId = "captureId";
+    void testCaptureUrlThrowsException() {
 
-        when(phantomJsClient.getScreenshot(captureId)).thenReturn(inputStream);
+        when(captureRepository.save(any(CaptureHistory.class)))
+                .thenThrow(new RuntimeException("expected exception"));
 
-        final InputStream inputStreamCapturedUrl = captureService.getCapturedUrl("captureId");
+        final var result = captureService.captureUrl(REQUEST_ID, URL);
 
-        assertThat(inputStreamCapturedUrl).isEqualTo(inputStream);
+        assertThat(result.isLeft()).isTrue();
+        assertThat(result.getLeft()).isEqualTo(String.format("can't capture url: %s", URL));
 
-        verify(phantomJsClient).getScreenshot(captureId);
+        verify(captureRepository).save(any(CaptureHistory.class));
     }
-
 }

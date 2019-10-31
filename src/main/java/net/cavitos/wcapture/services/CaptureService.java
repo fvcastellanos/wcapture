@@ -45,7 +45,7 @@ public class CaptureService {
         } catch (Exception ex) {
 
             logger.error("can't capture url={}, requestId={} - ", url, requestId, ex);            
-            return Either.left("can't captuer url: " + url);
+            return Either.left("can't capture url: " + url);
         }
     }
 

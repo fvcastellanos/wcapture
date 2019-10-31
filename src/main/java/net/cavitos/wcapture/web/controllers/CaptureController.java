@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -39,31 +40,36 @@ public class CaptureController {
             return "main";
         }
 
-        LOGGER.info("capture request received for url: {}", url);
-        final var captureHolder = captureService.captureUrl(url);
+        var requestId = UUID.randomUUID().toString();
 
-        if (!captureHolder.isPresent()) {
-            LOGGER.error("can't capture url: {}", url);
+        LOGGER.info("capture request received for url={}, created requestId={}", url, requestId);
+        final var result = captureService.captureUrl(requestId, url);
+
+        if (result.isLeft()) {
+
+            LOGGER.error("can't capture url={}, error={}", url, result.getLeft());
+
             model.addAttribute("error", "Can't capture the URL provided: " + url);
+
             return "main";
         }
 
-        model.addAttribute("capture", captureHolder.get());
+        model.addAttribute("capture", result.get());
         return "main";
     }
 
-    @GetMapping("/file/{capture-id}")
-    public void getCapturedUrl(@PathVariable("capture-id") final String captureId, final HttpServletResponse response) throws IOException {
-        if (isBlank(captureId)) {
-            LOGGER.error("No image information received");
-            throw new RuntimeException("Can't download image");
-        }
-
-        final var inputStream = captureService.getCapturedUrl(captureId);
-        IOUtils.copy(inputStream, response.getOutputStream());
-        response.setContentType("image/png");
-        response.flushBuffer();
-    }
+//    @GetMapping("/file/{capture-id}")
+//    public void getCapturedUrl(@PathVariable("capture-id") final String captureId, final HttpServletResponse response) throws IOException {
+//        if (isBlank(captureId)) {
+//            LOGGER.error("No image information received");
+//            throw new RuntimeException("Can't download image");
+//        }
+//
+//        final var inputStream = captureService.getCapturedUrl(captureId);
+//        IOUtils.copy(inputStream, response.getOutputStream());
+//        response.setContentType("image/png");
+//        response.flushBuffer();
+//    }
 
     private boolean isValidUrl(final String url) {
         try {

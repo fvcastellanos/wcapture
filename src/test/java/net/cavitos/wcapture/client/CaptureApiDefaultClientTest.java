@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
+import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildCaptureResponse;
+import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildErrorResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -99,24 +101,4 @@ public class CaptureApiDefaultClientTest {
 
         return request;
     }
-
-    private CaptureResponse buildCaptureResponse(String requestId, String url) {
-
-        var response = new CaptureResponse();
-        response.setRequestId(requestId);
-        response.setTargetUrl(url);
-        response.setStoredPath("https://cdn.net/image.jpg");
-
-        return response;
-    }
-
-    private ErrorResponse buildErrorResponse(String requestId, String message) {
-
-        var error = new ErrorResponse();
-        error.setRequestId(requestId);
-        error.setError(message);
-
-        return error;
-    }
-
 }

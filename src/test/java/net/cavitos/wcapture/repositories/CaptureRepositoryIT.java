@@ -38,7 +38,9 @@ class CaptureRepositoryIT {
     void testSave() {
         final CaptureHistory expectedCaptureHistory = CaptureHistory
                 .builder()
-                .filename("FILENAME-A")
+                .requestId("1234")
+                .result("OK")
+                .storedPath("https://cdn.net/image.jpg")
                 .url("http://www.fake.com")
                 .build();
 
@@ -51,7 +53,8 @@ class CaptureRepositoryIT {
         final CaptureHistory actualCaptureHistory = actualCaptureHistories.get(0);
 
         assertThat(actualCaptureHistory)
-                               .isEqualToComparingOnlyGivenFields(expectedCaptureHistory, "filename", "url");
+                .isEqualToComparingOnlyGivenFields(expectedCaptureHistory,
+                        "requestId", "url", "result", "storedPath");
     }
 
     private List<CaptureHistory> getAllCaptureHistories() {
@@ -62,8 +65,10 @@ class CaptureRepositoryIT {
         return CaptureHistory
                 .builder()
                 .id(resultSet.getLong("id"))
-                .filename(resultSet.getString("filename"))
+                .requestId(resultSet.getString("request_id"))
+                .storedPath(resultSet.getString("stored_path"))
                 .url(resultSet.getString("url"))
+                .result(resultSet.getString("result"))
                 .build();
     }
 
