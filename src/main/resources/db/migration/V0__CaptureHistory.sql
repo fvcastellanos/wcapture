@@ -6,7 +6,10 @@ CREATE TABLE IF NOT EXISTS capture_history
     created_date  TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP,
     modified_date TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     url           VARCHAR(255) NOT NULL,
-    filename      VARCHAR(255) NOT NULL,
+    request_id    VARCHAR(255) NOT NULL,
+    result        VARCHAR(10)  NOT NULL,
+    stored_path   VARCHAR(255),
+    error         VARCHAR(255),
     PRIMARY KEY (id)
 )
     ENGINE = InnoDB

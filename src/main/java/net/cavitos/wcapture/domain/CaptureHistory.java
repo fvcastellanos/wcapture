@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Table(name = "capture_history")
 @Data
 @Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class CaptureHistory {
@@ -30,6 +32,15 @@ public class CaptureHistory {
     private String url;
 
     @Column
-    private String filename;
+    private String requestId;
+
+    @Column
+    private String result;
+
+    @Column
+    private String storedPath;
+
+    @Column
+    private String error;
 
 }
