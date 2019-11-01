@@ -19,6 +19,9 @@
                         <a id="showCapture" target="_blank" href="${capture.storedPath}" class="btn btn-success">See Capture</a>
                     </#if>
                 </div>
+                <#if requestId??>
+                    <input type="hidden" name="requestId" id="requestId" value="${requestId}" />
+                </#if>
             </form>
         </div>
     </div>

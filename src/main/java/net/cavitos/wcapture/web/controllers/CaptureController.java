@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.net.URL;
 import java.util.UUID;
 
+import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Controller
 public class CaptureController {
@@ -25,21 +27,28 @@ public class CaptureController {
     }
 
     @GetMapping("/")
-    public String capture() {
+    public String capture(final Model model) {
+
+        model.addAttribute("requestId", UUID.randomUUID().toString());
         return "main";
     }
 
     @PostMapping("/")
-    public String capture(final Model model, final String url) {
+    public String capture(final Model model, final String requestId, final String url) {
+
         if (!isBlank(url) && !isValidUrl(url)) {
             model.addAttribute("error", "Please provide a valid URL");
             return "main";
         }
 
-        var requestId = UUID.randomUUID().toString();
+        var generatedRequestId = requestId;
+        if (isEmpty(requestId)) {
 
-        LOGGER.info("capture request received for url={}, created requestId={}", url, requestId);
-        final var result = captureService.captureUrl(requestId, url);
+            generatedRequestId = UUID.randomUUID().toString();
+        }
+
+        LOGGER.info("capture request received for url={}, created requestId={}", url, generatedRequestId);
+        final var result = captureService.captureUrl(generatedRequestId, url);
 
         if (result.isLeft()) {
 
@@ -51,8 +60,11 @@ public class CaptureController {
         }
 
         model.addAttribute("capture", result.get());
+        model.addAttribute("requestId", generatedRequestId);
         return "main";
     }
+
+    // ------------------------------------------------------------------------------------------------------------
 
     private boolean isValidUrl(final String url) {
         try {

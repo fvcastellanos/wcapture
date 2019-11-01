@@ -1,4 +1,4 @@
-package net.cavitos.wcapture.services;
+package net.cavitos.wcapture.model;
 
 import net.cavitos.wcapture.client.model.CaptureResponse;
 import net.cavitos.wcapture.client.model.ErrorResponse;

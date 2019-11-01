@@ -1,5 +1,6 @@
 package net.cavitos.wcapture.fixture;
 
+import net.cavitos.wcapture.client.model.CaptureRequest;
 import net.cavitos.wcapture.client.model.CaptureResponse;
 import net.cavitos.wcapture.client.model.ErrorResponse;
 
@@ -25,6 +26,15 @@ public class CaptureApiClientFixture {
         error.setError(message);
 
         return error;
+    }
+
+    public static CaptureRequest buildCaptureRequest(String requestId, String url) {
+
+        var request = new CaptureRequest();
+        request.setUrl(url);
+        request.setRequestId(requestId);
+
+        return request;
     }
 
 }
