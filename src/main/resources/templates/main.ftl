@@ -16,7 +16,7 @@
                 <div>
                     <input type="submit" class="btn btn-primary" value="Capture URL" required/>
                     <#if capture??>
-                        <a id="showCapture" target="_blank" href="/file/${capture.captureId}" class="btn btn-success">See Capture</a>
+                        <a id="showCapture" target="_blank" href="${capture.storedPath}" class="btn btn-success">See Capture</a>
                     </#if>
                 </div>
             </form>

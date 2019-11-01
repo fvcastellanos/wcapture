@@ -1,17 +1,13 @@
 package net.cavitos.wcapture.web.controllers;
 
 import net.cavitos.wcapture.services.CaptureService;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
 
@@ -57,19 +53,6 @@ public class CaptureController {
         model.addAttribute("capture", result.get());
         return "main";
     }
-
-//    @GetMapping("/file/{capture-id}")
-//    public void getCapturedUrl(@PathVariable("capture-id") final String captureId, final HttpServletResponse response) throws IOException {
-//        if (isBlank(captureId)) {
-//            LOGGER.error("No image information received");
-//            throw new RuntimeException("Can't download image");
-//        }
-//
-//        final var inputStream = captureService.getCapturedUrl(captureId);
-//        IOUtils.copy(inputStream, response.getOutputStream());
-//        response.setContentType("image/png");
-//        response.flushBuffer();
-//    }
 
     private boolean isValidUrl(final String url) {
         try {

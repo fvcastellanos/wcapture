@@ -1,24 +1,32 @@
 package net.cavitos.wcapture.web.controllers;
 
-import net.cavitos.wcapture.model.Capture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.TestContextManager;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -35,9 +43,19 @@ class CaptureControllerIT {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${capture.api.url}")
+    private String captureApiUrl;
+
+    private MockRestServiceServer mockRestServiceServer;
+
     @BeforeEach
     void setUp() throws Exception {
         new TestContextManager(getClass()).prepareTestInstance(this);
+
+        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
     }
 
     @Test
@@ -50,6 +68,14 @@ class CaptureControllerIT {
 
     @Test
     void testPostCaptureUrl() throws Exception {
+
+        mockRestServiceServer.expect(requestTo(captureApiUrl))
+                .andExpect(method(HttpMethod.POST))
+                .andRespond(withStatus(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body("")
+                );
+
         mockMvc()
                 .perform(
                         post("/")
@@ -85,20 +111,10 @@ class CaptureControllerIT {
         postResultActions.andExpect(status().isOk());
         postResultActions.andExpect(view().name("main"));
         postResultActions.andExpect(model().attribute("capture", hasProperty("captureId", is(not(nullValue())))));
+        postResultActions.andExpect(model().attribute("capture", hasProperty("storedPath", is(not(nullValue())))));
 
-        final var postMvcResult = postResultActions.andExpect(status().isOk()).andReturn();
-
-        final var capture = (Capture) postMvcResult.getModelAndView().getModel().get("capture");
-
-        final var resultActions = mockMvc()
-                .perform(
-                        get("/file/" + capture.getCaptureId()))
-                .andExpect(status().isOk());
-
-
-        final var mvcResult = resultActions.andExpect(status().isOk()).andReturn();
-
-        assertThat(mvcResult.getResponse().getBufferSize()).isNotNull();
+        postResultActions.andExpect(status().isOk())
+                .andReturn();
     }
 
     private MockMvc mockMvc() {

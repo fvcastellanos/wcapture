@@ -88,6 +88,9 @@ class CaptureServiceTest {
     @Test
     void testCaptureUrlThrowsException() {
 
+        when(captureApiClient.captureUrl(REQUEST_ID, URL))
+                .thenReturn(Either.right(buildCaptureResponse(REQUEST_ID, URL)));
+
         when(captureRepository.save(any(CaptureHistory.class)))
                 .thenThrow(new RuntimeException("expected exception"));
 
