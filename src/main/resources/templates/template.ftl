@@ -11,7 +11,7 @@
 <body>
 
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">Web Capture</a>
+    <a class="navbar-brand" href="/wcapture">Web Capture</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -19,7 +19,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item active">
-                <a class="nav-link" href="/about">About</a>
+                <a class="nav-link" href="/wcapture/about">About</a>
             </li>
         </ul>
     </div>
