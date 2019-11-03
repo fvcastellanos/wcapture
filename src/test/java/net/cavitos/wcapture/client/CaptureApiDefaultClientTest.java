@@ -1,12 +1,15 @@
 package net.cavitos.wcapture.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import net.cavitos.wcapture.client.model.CaptureRequest;
-import net.cavitos.wcapture.client.model.CaptureResponse;
-import net.cavitos.wcapture.client.model.ErrorResponse;
-
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,13 +22,25 @@ import java.util.UUID;
 import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildCaptureResponse;
 import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildErrorResponse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
+@ExtendWith(MockitoExtension.class)
 public class CaptureApiDefaultClientTest {
 
     private static final String CAPTURE_API_URL = "https://capture-api.com/capture/v1";
+
+    @Mock
+    private Counter counter;
+
+    @Mock
+    private MeterRegistry meterRegistry;
 
     private MockRestServiceServer mockRestServiceServer;
 
@@ -42,11 +57,19 @@ public class CaptureApiDefaultClientTest {
         var restTemplate = new RestTemplate();
 
         mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
-        captureApiClient = new CaptureApiDefaultClient(objectMapper, restTemplate, CAPTURE_API_URL);
+        captureApiClient = new CaptureApiDefaultClient(objectMapper, restTemplate, CAPTURE_API_URL, meterRegistry);
+    }
+
+    @AfterEach
+    void tearDown() {
+
+        verifyNoMoreInteractions(meterRegistry, counter);
     }
 
     @Test
     void testSuccessCaptureRequest() throws Exception {
+
+        expectMetricRecorded();
 
         var captureResponse = buildCaptureResponse(requestId, url);
         var content = objectMapper.writeValueAsString(buildCaptureRequest(requestId, url));
@@ -76,6 +99,8 @@ public class CaptureApiDefaultClientTest {
         var content = objectMapper.writeValueAsString(buildCaptureRequest(requestId, url));
         var responseBody = objectMapper.writeValueAsString(errorResponse);
 
+        expectMetricRecorded();
+
         mockRestServiceServer.expect(MockRestRequestMatchers.requestTo(CAPTURE_API_URL))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -100,5 +125,14 @@ public class CaptureApiDefaultClientTest {
         request.setRequestId(requestId);
 
         return request;
+    }
+
+    private void expectMetricRecorded() {
+
+        doNothing().when(counter)
+                .increment();
+
+        when(meterRegistry.counter(anyString(), any(Iterable.class)))
+            .thenReturn(counter);
     }
 }

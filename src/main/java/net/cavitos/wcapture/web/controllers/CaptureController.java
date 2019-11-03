@@ -1,5 +1,8 @@
 package net.cavitos.wcapture.web.controllers;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
 import net.cavitos.wcapture.services.CaptureService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.net.URL;
 import java.util.UUID;
 
-import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -20,12 +22,16 @@ public class CaptureController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureController.class);
 
+    private final MeterRegistry meterRegistry;
+
     private final CaptureService captureService;
 
-    public CaptureController(final CaptureService captureService) {
+    public CaptureController(final CaptureService captureService, final MeterRegistry meterRegistry) {
         this.captureService = captureService;
+        this.meterRegistry = meterRegistry;
     }
 
+    @Counted
     @GetMapping("/")
     public String capture(final Model model) {
 
@@ -34,6 +40,7 @@ public class CaptureController {
     }
 
     @PostMapping("/")
+    @Timed("capture_url")
     public String capture(final Model model, final String requestId, final String url) {
 
         if (!isBlank(url) && !isValidUrl(url)) {
@@ -53,7 +60,7 @@ public class CaptureController {
         if (result.isLeft()) {
 
             LOGGER.error("can't capture url={}, error={}", url, result.getLeft());
-
+            meterRegistry.counter("capture_api_down").increment();
             model.addAttribute("error", "Can't capture the URL provided: " + url);
 
             return "main";
