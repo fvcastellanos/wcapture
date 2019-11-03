@@ -2,6 +2,7 @@ package net.cavitos.wcapture.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +25,11 @@ public class ApiClientConfiguration {
     }
 
     @Bean
-    public CaptureApiClient captureApiClient(ObjectMapper objectMapper, RestOperations restOperations) {
+    public CaptureApiClient captureApiClient(ObjectMapper objectMapper,
+                                             RestOperations restOperations,
+                                             MeterRegistry meterRegistry) {
 
-        return new CaptureApiDefaultClient(objectMapper, restOperations, captureApiUrl);
+        return new CaptureApiDefaultClient(objectMapper, restOperations, captureApiUrl, meterRegistry);
     }
 
 }
