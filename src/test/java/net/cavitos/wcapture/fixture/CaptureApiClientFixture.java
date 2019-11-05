@@ -3,6 +3,7 @@ package net.cavitos.wcapture.fixture;
 import net.cavitos.wcapture.client.model.CaptureRequest;
 import net.cavitos.wcapture.client.model.CaptureResponse;
 import net.cavitos.wcapture.client.model.ErrorResponse;
+import net.cavitos.wcapture.client.model.HealthResponse;
 
 public class CaptureApiClientFixture {
 
@@ -35,6 +36,24 @@ public class CaptureApiClientFixture {
         request.setRequestId(requestId);
 
         return request;
+    }
+
+    public static HealthResponse buildUpHealthResponse() {
+
+        var health = new HealthResponse();
+        health.setStatus("UP");
+        health.setStorageStatus("UP");
+
+        return health;
+    }
+
+    public static HealthResponse buildDownHealthResponse() {
+
+        var health = new HealthResponse();
+        health.setStatus("DOWN");
+        health.setStorageStatus("DOWN");
+
+        return health;
     }
 
 }

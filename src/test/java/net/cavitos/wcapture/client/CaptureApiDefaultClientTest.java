@@ -15,12 +15,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.match.MockRestRequestMatchers;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
 import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildCaptureResponse;
+import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildDownHealthResponse;
 import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildErrorResponse;
+import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildUpHealthResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -35,7 +38,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 public class CaptureApiDefaultClientTest {
 
     private static final String CAPTURE_API_URL = "https://capture-api.com/capture/v1";
-
+    private static final String CAPTURE_API_HEALTH_URL = "https://capture-api.com/capture/v1/health";
     @Mock
     private Counter counter;
 
@@ -57,7 +60,7 @@ public class CaptureApiDefaultClientTest {
         var restTemplate = new RestTemplate();
 
         mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
-        captureApiClient = new CaptureApiDefaultClient(objectMapper, restTemplate, CAPTURE_API_URL, meterRegistry);
+        captureApiClient = new CaptureApiDefaultClient(objectMapper, restTemplate, CAPTURE_API_URL, CAPTURE_API_HEALTH_URL, meterRegistry);
     }
 
     @AfterEach
@@ -107,13 +110,56 @@ public class CaptureApiDefaultClientTest {
                 .andExpect(content().json(content, false))
                 .andRespond(withStatus(HttpStatus.UNPROCESSABLE_ENTITY)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(responseBody)
-                );
+                        .body(responseBody));
 
         var result = captureApiClient.captureUrl(requestId, url);
 
         assertThat(result.isLeft()).isTrue();
         assertThat(result.getLeft()).isEqualTo(errorResponse);
+    }
+
+    @Test
+    void testHealthCheck() throws Exception {
+
+        var healthResponse = buildUpHealthResponse();
+        var responseBody = objectMapper.writeValueAsString(healthResponse);
+        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo(CAPTURE_API_HEALTH_URL))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(responseBody));
+
+        var result = captureApiClient.getHealth();
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.get()).isEqualTo(healthResponse);
+    }
+
+    @Test
+    void testFailHealthCheck() throws Exception {
+
+        var healthResponse = buildDownHealthResponse();
+        var responseBody = objectMapper.writeValueAsString(healthResponse);
+        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo(CAPTURE_API_HEALTH_URL))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.OK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(responseBody));
+
+        var result = captureApiClient.getHealth();
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.get()).isEqualTo(healthResponse);
+    }
+
+    @Test
+    void testHealthCheckThrowsException() {
+
+        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo(CAPTURE_API_HEALTH_URL))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        var result = captureApiClient.getHealth();
+        assertThat(result.isFailure()).isTrue();
+        assertThat(result.getCause()).isInstanceOf(HttpServerErrorException.InternalServerError.class);
     }
 
     // ----------------------------------------------------------------------------

@@ -8,8 +8,10 @@ import io.vavr.control.Try;
 import net.cavitos.wcapture.client.model.CaptureRequest;
 import net.cavitos.wcapture.client.model.CaptureResponse;
 import net.cavitos.wcapture.client.model.ErrorResponse;
+import net.cavitos.wcapture.client.model.HealthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestOperations;
 
@@ -24,14 +26,16 @@ public class CaptureApiDefaultClient implements CaptureApiClient {
     private final ObjectMapper objectMapper;
     private final RestOperations restOperations;
     private final String captureApiUrl;
+    private final String healthApiUrl;
 
     public CaptureApiDefaultClient(final ObjectMapper objectMapper, final RestOperations restOperations,
-                                   String captureApiUrl, MeterRegistry meterRegistry) {
+                                   String captureApiUrl, String healthApiUrl, MeterRegistry meterRegistry) {
 
         this.captureApiUrl = captureApiUrl;
         this.objectMapper = objectMapper;
         this.restOperations = restOperations;
         this.meterRegistry = meterRegistry;
+        this.healthApiUrl = healthApiUrl;
     }
 
     @Override
@@ -58,6 +62,13 @@ public class CaptureApiDefaultClient implements CaptureApiClient {
             var message = String.format("can't process capture request for url=%s, requestId=%s", url, requestId);
             return Either.left(buildErrorResponse(requestId, message));
         }
+    }
+
+    @Override
+    public Try<HealthResponse> getHealth() {
+
+        return Try.of(() -> restOperations.getForEntity(healthApiUrl, HealthResponse.class))
+                .map(ResponseEntity::getBody);
     }
 
     // -------------------------------------------------------------------------------------
