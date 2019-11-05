@@ -41,7 +41,7 @@ public class CaptureApiHealthIndicator extends AbstractHealthIndicator {
         }
 
         builder.down()
-                .withDetail("issue", healthResult.getCause())
+                .withDetail("issue", healthResult.getCause().getMessage())
                 .build();
     }
 }
