@@ -5,17 +5,18 @@ jdk: openjdk11
 addons:
   hosts:
     - wcapturedb
-    - phantom
+    - rabbitmq-host
   apt:
     packages:
       - mysql-client
 
 services:
   - docker
+  - rabbitmq
 
 before_install:
   - docker run -d --name mysql -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=r00t mysql:8.0.18
-  - docker run -d --name phantomjs -p 127.0.0.1:8910:8910 wernight/phantomjs phantomjs --webdriver=8910
+#  - docker run -d --name phantomjs -p 127.0.0.1:8910:8910 wernight/phantomjs phantomjs --webdriver=8910
   - ./scripts/bash/init
 
 install: /bin/true

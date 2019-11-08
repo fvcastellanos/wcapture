@@ -19,6 +19,12 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
             <li class="nav-item active">
+                <a class="nav-link" href="/wcapture">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/wcapture/captures">Captures</a>
+            </li>
+            <li class="nav-item active">
                 <a class="nav-link" href="/wcapture/about">About</a>
             </li>
         </ul>
@@ -42,9 +48,9 @@
 
 </div>
 
-<footer>
-    <div>Cavitos.NET</div>
-</footer>
+<#--<footer>-->
+<#--    <div>Cavitos.NET</div>-->
+<#--</footer>-->
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>

@@ -1,60 +1,58 @@
 package net.cavitos.wcapture.services;
 
-import net.cavitos.wcapture.model.CaptureHistoryFactory;
+import io.micrometer.core.annotation.Timed;
+import net.cavitos.wcapture.client.model.CaptureRequest;
+import net.cavitos.wcapture.domain.CaptureHistory;
+import net.cavitos.wcapture.message.producer.CaptureRequestProducer;
+import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import io.vavr.control.Either;
-import net.cavitos.wcapture.client.CaptureApiClient;
-import net.cavitos.wcapture.client.model.CaptureResponse;
-import net.cavitos.wcapture.client.model.ErrorResponse;
-import net.cavitos.wcapture.domain.CaptureHistory;
-import net.cavitos.wcapture.model.Capture;
-import net.cavitos.wcapture.repositories.CaptureRepository;
+import java.util.Collections;
+import java.util.List;
 
 @Service
 public class CaptureService {
 
     private static final Logger logger = LoggerFactory.getLogger(CaptureService.class);
 
+    private final CaptureRequestProducer captureRequestProducer;
     private final CaptureRepository captureRepository;
-    private final CaptureApiClient captureApiClient;
 
-    public CaptureService(final CaptureRepository captureRepository,
-                          final CaptureApiClient captureApiClient) {
+    public CaptureService(final CaptureRequestProducer captureRequestProducer,
+                          final CaptureRepository captureRepository) {
+
+        this.captureRequestProducer = captureRequestProducer;
         this.captureRepository = captureRepository;
-        this.captureApiClient = captureApiClient;
     }
 
-    public Either<String, Capture> captureUrl(final String requestId, final String url) {
+    public void captureUrl(final String requestId, final String url) {
+
+        logger.info("capture request received for url={}, requestId={}", url, requestId);
+
+        var request = new CaptureRequest();
+        request.setRequestId(requestId);
+        request.setUrl(url);
+
+        captureRequestProducer.produce(request);
+    }
+
+    public List<CaptureHistory> getCaptureHistory() {
 
         try {
 
-            var result = captureApiClient.captureUrl(requestId, url);
-            
-            CaptureHistory captureHistory = result.isRight() ? CaptureHistoryFactory.fromCaptureResponse(result.get())
-                : CaptureHistoryFactory.fromCaptureError(url, result.getLeft());
-               
-            captureRepository.save(captureHistory);
-            logger.info("storing capture_history={}", captureHistory);
+            var pageRequest = PageRequest.of(0, 50, Sort.by("id").descending());
 
-            return result
-                .map(this::buildCapture)
-                .mapLeft(ErrorResponse::getError);
-    
+            var page = captureRepository.findAll(pageRequest);
+            return page.getContent();
+
         } catch (Exception ex) {
 
-            logger.error("can't capture url={}, requestId={} - ", url, requestId, ex);            
-            return Either.left("can't capture url: " + url);
+            logger.error("can't get capture history - ", ex);
+            return Collections.emptyList();
         }
-    }
-
-    private Capture buildCapture(CaptureResponse captureResponse) {
-
-        return Capture.builder()
-            .captureId(captureResponse.getRequestId())
-            .storedPath(captureResponse.getStoredPath())
-            .build();
     }
 }
