@@ -1,6 +1,5 @@
 package net.cavitos.wcapture.services;
 
-import io.micrometer.core.annotation.Timed;
 import net.cavitos.wcapture.client.model.CaptureRequest;
 import net.cavitos.wcapture.domain.CaptureHistory;
 import net.cavitos.wcapture.message.producer.CaptureRequestProducer;

@@ -2,14 +2,10 @@ package net.cavitos.wcapture.message.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.annotation.Timed;
-import io.vavr.control.Either;
 import io.vavr.control.Try;
 import net.cavitos.wcapture.client.CaptureApiClient;
 import net.cavitos.wcapture.client.model.CaptureRequest;
-import net.cavitos.wcapture.client.model.CaptureResponse;
-import net.cavitos.wcapture.client.model.ErrorResponse;
 import net.cavitos.wcapture.domain.CaptureHistory;
-import net.cavitos.wcapture.model.Capture;
 import net.cavitos.wcapture.model.CaptureHistoryFactory;
 import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.slf4j.Logger;
@@ -49,7 +45,7 @@ public class CaptureRequestListener implements MessageListener {
         });
     }
 
-    private Either<String, Capture> captureUrl(String requestId, String url) {
+    private void captureUrl(String requestId, String url) {
 
         try {
 
@@ -61,24 +57,9 @@ public class CaptureRequestListener implements MessageListener {
             captureRepository.save(captureHistory);
             logger.info("storing capture_history={}", captureHistory);
 
-            return result
-                    .map(this::buildCapture)
-                    .mapLeft(ErrorResponse::getError);
-
         } catch (Exception ex) {
 
             logger.error("can't capture url={}, requestId={} - ", url, requestId, ex);
-            return Either.left("can't capture url: " + url);
         }
-
     }
-
-    private Capture buildCapture(CaptureResponse captureResponse) {
-
-        return Capture.builder()
-                .captureId(captureResponse.getRequestId())
-                .storedPath(captureResponse.getStoredPath())
-                .build();
-    }
-
 }

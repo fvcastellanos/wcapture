@@ -13,10 +13,10 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class ApiClientConfiguration {
 
-    @Value("${capture.api.url:https://apps.cavitos.net/capture/v1/}")
+    @Value("${capture.api.url}")
     private String captureApiUrl;
 
-    @Value("${capture.api.health.url:https://apps.cavitos.net/capture/v1/health}")
+    @Value("${capture.api.health.url}")
     private String healthApiUrl;
 
     @Bean

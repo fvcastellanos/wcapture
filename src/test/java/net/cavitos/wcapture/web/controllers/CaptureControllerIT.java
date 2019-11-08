@@ -74,26 +74,25 @@ class CaptureControllerIT {
                 .andExpect(view().name("main"));
     }
 
-//    @Test
-//    void testPostCaptureUrl() throws Exception {
-//
-//        var requestId = UUID.randomUUID().toString();
-//        var url = "https://gog.com";
-//
-//        expectSuccessCapture(requestId, url);
-//
-//        var params = new LinkedMultiValueMap<String, String>();
-//        params.add("url", url);
-//        params.add("requestId", requestId);
-//
-//        mockMvc().perform(post("/")
-//                .contentType(APPLICATION_FORM_URLENCODED)
-//                .params(params))
-//                .andExpect(status().isOk())
-//                .andExpect(view().name("main"))
-//                .andExpect(model().attribute("requestId", is(requestId)))
-//                .andExpect(model().attribute("capture", hasProperty("captureId", is(not(nullValue())))));
-//    }
+    @Test
+    void testPostCaptureUrl() throws Exception {
+
+        var requestId = UUID.randomUUID().toString();
+        var url = "https://gog.com";
+
+        expectSuccessCapture(requestId, url);
+
+        var params = new LinkedMultiValueMap<String, String>();
+        params.add("url", url);
+        params.add("requestId", requestId);
+
+        mockMvc().perform(post("/")
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .params(params))
+                .andExpect(status().isOk())
+                .andExpect(view().name("main"))
+                .andExpect(model().attribute("requestId", is(requestId)));
+    }
 
     @Test
     void testPostCapture_InvalidUrl() throws Exception {
@@ -106,33 +105,14 @@ class CaptureControllerIT {
                 .andExpect(model().attribute("error", is("Please provide a valid URL")));
     }
 
-//    @Test
-//    void testGetCapturedUrl() throws Exception {
-//
-//        var requestId = UUID.randomUUID().toString();
-//        var url = "https://gog.com";
-//
-//        expectSuccessCapture(requestId, url);
-//
-//        var params = new LinkedMultiValueMap<String, String>();
-//        params.add("url", url);
-//        params.add("requestId", requestId);
-//
-//        final ResultActions postResultActions = mockMvc()
-//                .perform(post("/")
-//                        .contentType(APPLICATION_FORM_URLENCODED)
-//                        .params(params));
-//
-//        postResultActions.andExpect(status().isOk());
-//        postResultActions.andExpect(view().name("main"));
-//        postResultActions.andExpect(model().attribute("capture",
-//                hasProperty("captureId", is(not(nullValue())))));
-//        postResultActions.andExpect(model().attribute("capture",
-//                hasProperty("storedPath", is(not(nullValue())))));
-//
-//        postResultActions.andExpect(status().isOk())
-//                .andReturn();
-//    }
+    @Test
+    void testGetCaptures() throws Exception {
+
+        mockMvc().perform(get("/captures"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("captures"))
+                .andExpect(model().attribute("captures", is(not(nullValue()))));
+    }
 
     // ------------------------------------------------------------------------------------------------------
 
