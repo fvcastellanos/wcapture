@@ -1,25 +1,22 @@
 package net.cavitos.wcapture.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.micrometer.core.instrument.MeterRegistry;
-import net.cavitos.wcapture.client.actuator.CaptureApiHealthIndicator;
+import net.cavitos.wcapture.client.CaptureApiClient;
+import net.cavitos.wcapture.client.CaptureApiDefaultClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import net.cavitos.wcapture.client.CaptureApiClient;
-import net.cavitos.wcapture.client.CaptureApiDefaultClient;
-
 @Configuration
 public class ApiClientConfiguration {
 
-    @Value("${capture.api.url:https://apps.cavitos.net/capture/v1/}")
+    @Value("${capture.api.url}")
     private String captureApiUrl;
 
-    @Value("${capture.api.health.url:https://apps.cavitos.net/capture/v1/health}")
+    @Value("${capture.api.health.url}")
     private String healthApiUrl;
 
     @Bean
@@ -34,12 +31,6 @@ public class ApiClientConfiguration {
                                              MeterRegistry meterRegistry) {
 
         return new CaptureApiDefaultClient(objectMapper, restOperations, captureApiUrl, healthApiUrl, meterRegistry);
-    }
-
-    @Bean
-    public CaptureApiHealthIndicator captureApiHealthIndicator(CaptureApiClient captureApiClient) {
-
-        return new CaptureApiHealthIndicator(captureApiClient);
     }
 
 }

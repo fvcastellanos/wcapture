@@ -40,7 +40,6 @@ public class CaptureController {
     }
 
     @PostMapping("/")
-    @Timed("capture_url")
     public String capture(final Model model, final String requestId, final String url) {
 
         if (!isBlank(url) && !isValidUrl(url)) {
@@ -55,20 +54,22 @@ public class CaptureController {
         }
 
         LOGGER.info("capture request received for url={}, created requestId={}", url, generatedRequestId);
-        final var result = captureService.captureUrl(generatedRequestId, url);
+        captureService.captureUrl(generatedRequestId, url);
 
-        if (result.isLeft()) {
-
-            LOGGER.error("can't capture url={}, error={}", url, result.getLeft());
-            meterRegistry.counter("capture_api_down").increment();
-            model.addAttribute("error", "Can't capture the URL provided: " + url);
-
-            return "main";
-        }
-
-        model.addAttribute("capture", result.get());
         model.addAttribute("requestId", generatedRequestId);
         return "main";
+    }
+
+    @GetMapping("/captures")
+    @Timed("load_captures")
+    public String showCaptures(final Model model) {
+
+        LOGGER.info("getting capture history latest 50 captures...for now");
+        var captures = captureService.getCaptureHistory();
+
+        model.addAttribute("captures", captures);
+
+        return "captures";
     }
 
     // ------------------------------------------------------------------------------------------------------------

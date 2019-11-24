@@ -1,10 +1,13 @@
 package net.cavitos.wcapture.repositories;
 
 import net.cavitos.wcapture.domain.CaptureHistory;
+import net.cavitos.wcapture.fixture.CaptureRepositoryFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -36,26 +39,34 @@ class CaptureRepositoryIT {
 
     @Test
     void testSave() {
-        final CaptureHistory expectedCaptureHistory = CaptureHistory
-                .builder()
-                .requestId("1234")
-                .result("OK")
-                .storedPath("https://cdn.net/image.jpg")
-                .url("http://www.fake.com")
-                .build();
+        final CaptureHistory expectedCaptureHistory = CaptureRepositoryFixture.buildCaptureHistory();
 
         captureRepository.save(expectedCaptureHistory);
 
         final List<CaptureHistory> actualCaptureHistories = getAllCaptureHistories();
 
-        assertThat(actualCaptureHistories.size()).isEqualTo(1);
-
-        final CaptureHistory actualCaptureHistory = actualCaptureHistories.get(0);
-
-        assertThat(actualCaptureHistory)
-                .isEqualToComparingOnlyGivenFields(expectedCaptureHistory,
-                        "requestId", "url", "result", "storedPath");
+        assertThat(actualCaptureHistories.toArray()).isNotEmpty();
+        assertThat(actualCaptureHistories.toArray())
+                .containsExactly(expectedCaptureHistory);
     }
+
+    @Test
+    void testGetCaptureHistory() {
+
+        var captureHistory = CaptureRepositoryFixture.buildCaptureHistory();
+
+        captureRepository.save(captureHistory);
+
+        var request = PageRequest.of(0, 50, Sort.by("id").descending());
+        var page = captureRepository.findAll(request);
+
+        assertThat(page).isNotNull();
+        assertThat(page.getTotalElements()).isEqualTo(1L);
+        var captures = page.getContent();
+        assertThat(captures.toArray()).containsExactly(captureHistory);
+    }
+
+    // ------------------------------------------------------------------------------------------------
 
     private List<CaptureHistory> getAllCaptureHistories() {
         return jdbcTemplate.query("SELECT * FROM capture_history", this::captureHistoryRowMapper);

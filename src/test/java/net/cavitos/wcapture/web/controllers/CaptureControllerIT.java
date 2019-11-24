@@ -91,8 +91,7 @@ class CaptureControllerIT {
                 .params(params))
                 .andExpect(status().isOk())
                 .andExpect(view().name("main"))
-                .andExpect(model().attribute("requestId", is(requestId)))
-                .andExpect(model().attribute("capture", hasProperty("captureId", is(not(nullValue())))));
+                .andExpect(model().attribute("requestId", is(requestId)));
     }
 
     @Test
@@ -107,31 +106,12 @@ class CaptureControllerIT {
     }
 
     @Test
-    void testGetCapturedUrl() throws Exception {
+    void testGetCaptures() throws Exception {
 
-        var requestId = UUID.randomUUID().toString();
-        var url = "https://gog.com";
-
-        expectSuccessCapture(requestId, url);
-
-        var params = new LinkedMultiValueMap<String, String>();
-        params.add("url", url);
-        params.add("requestId", requestId);
-
-        final ResultActions postResultActions = mockMvc()
-                .perform(post("/")
-                        .contentType(APPLICATION_FORM_URLENCODED)
-                        .params(params));
-
-        postResultActions.andExpect(status().isOk());
-        postResultActions.andExpect(view().name("main"));
-        postResultActions.andExpect(model().attribute("capture",
-                hasProperty("captureId", is(not(nullValue())))));
-        postResultActions.andExpect(model().attribute("capture",
-                hasProperty("storedPath", is(not(nullValue())))));
-
-        postResultActions.andExpect(status().isOk())
-                .andReturn();
+        mockMvc().perform(get("/captures"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("captures"))
+                .andExpect(model().attribute("captures", is(not(nullValue()))));
     }
 
     // ------------------------------------------------------------------------------------------------------

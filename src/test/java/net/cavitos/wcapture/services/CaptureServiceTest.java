@@ -1,8 +1,9 @@
 package net.cavitos.wcapture.services;
 
-import io.vavr.control.Either;
-import net.cavitos.wcapture.client.CaptureApiClient;
+import net.cavitos.wcapture.client.model.CaptureRequest;
 import net.cavitos.wcapture.domain.CaptureHistory;
+import net.cavitos.wcapture.fixture.CaptureRepositoryFixture;
+import net.cavitos.wcapture.message.producer.CaptureRequestProducer;
 import net.cavitos.wcapture.repositories.CaptureRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,17 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
+import java.util.Collections;
 
-import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildCaptureResponse;
-import static net.cavitos.wcapture.fixture.CaptureApiClientFixture.buildErrorResponse;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -35,70 +34,112 @@ class CaptureServiceTest {
     private CaptureRepository captureRepository;
 
     @Mock
-    private CaptureApiClient captureApiClient;
+    private CaptureRequestProducer captureRequestProducer;
 
     private CaptureService captureService;
 
     @BeforeEach
     void setUp() {
-        captureService = new CaptureService(captureRepository, captureApiClient);
+        captureService = new CaptureService(captureRequestProducer, captureRepository);
     }
 
     @AfterEach
     void tearDown() {
-        verifyNoMoreInteractions(captureRepository, captureApiClient);
+        verifyNoMoreInteractions(captureRepository, captureRequestProducer);
     }
 
     @Test
     void testCaptureUrl() {
 
-        when(captureApiClient.captureUrl(REQUEST_ID, URL))
-            .thenReturn(Either.right(buildCaptureResponse(REQUEST_ID, URL)));
+        doNothing().when(captureRequestProducer)
+                .produce(any(CaptureRequest.class));
 
-        when(captureRepository.save(any(CaptureHistory.class)))
-                .thenReturn(new CaptureHistory());
+//        when(captureRepository.save(any(CaptureHistory.class)))
+//                .thenReturn(new CaptureHistory());
 
-        final var result = captureService.captureUrl(REQUEST_ID, URL);
+        captureService.captureUrl(REQUEST_ID, URL);
 
-        assertThat(result.isRight()).isTrue();
 
-        final var capture = result.get();
-
-        assertThat(capture.getCaptureId()).isNotNull();
-
-        verify(captureRepository).save(any(CaptureHistory.class));
-        verify(captureApiClient).captureUrl(REQUEST_ID, URL);
+//        verify(captureRepository).save(any(CaptureHistory.class));
+        verify(captureRequestProducer).produce(any(CaptureRequest.class));
+//        verify(captureApiClient).captureUrl(REQUEST_ID, URL);
     }
 
     @Test
-    void testCaptureUrlReturnError() {
+    void testGetCaptureHistory() {
 
-        when(captureApiClient.captureUrl(REQUEST_ID, URL))
-                .thenReturn(Either.left(buildErrorResponse(REQUEST_ID, "something went wrong")));
+        var captureHistory = CaptureRepositoryFixture.buildCaptureHistory();
 
-        final var result = captureService.captureUrl(REQUEST_ID, URL);
+        Page<CaptureHistory> page = new PageImpl<>(Collections.singletonList(captureHistory));
+        when(captureRepository.findAll(any(Pageable.class)))
+                .thenReturn(page);
 
-        assertThat(result.isLeft()).isTrue();
-        assertThat(result.getLeft()).isEqualTo("something went wrong");
+        var captures = captureService.getCaptureHistory();
 
-        verify(captureRepository).save(any(CaptureHistory.class));
-        verify(captureApiClient).captureUrl(REQUEST_ID, URL);
+        assertThat(captures.toArray()).contains(captureHistory);
+
+        verify(captureRepository).findAll(any(Pageable.class));
     }
 
     @Test
-    void testCaptureUrlThrowsException() {
+    void testGetEmptyCaptureHistory() {
 
-        when(captureApiClient.captureUrl(REQUEST_ID, URL))
-                .thenReturn(Either.right(buildCaptureResponse(REQUEST_ID, URL)));
+        when(captureRepository.findAll(any(Pageable.class)))
+                .thenReturn(Page.empty());
 
-        when(captureRepository.save(any(CaptureHistory.class)))
-                .thenThrow(new RuntimeException("expected exception"));
+        var captures = captureService.getCaptureHistory();
 
-        final var result = captureService.captureUrl(REQUEST_ID, URL);
+        assertThat(captures.toArray()).isEmpty();
 
-        assertThat(result.isLeft()).isTrue();
-        assertThat(result.getLeft()).isEqualTo(String.format("can't capture url: %s", URL));
-
-        verify(captureRepository).save(any(CaptureHistory.class));
+        verify(captureRepository).findAll(any(Pageable.class));
     }
+
+    @Test
+    void testWhenExceptionThrownGetCaptureHistoryReturnEmpyList() {
+
+        when(captureRepository.findAll(any(Pageable.class)))
+                .thenThrow(new RuntimeException("test exception"));
+
+        var captures = captureService.getCaptureHistory();
+
+        assertThat(captures.toArray()).isEmpty();
+
+        verify(captureRepository).findAll(any(Pageable.class));
+    }
+
+    // --------------------------------------------------------------------------------
+
+//    @Test
+//    void testCaptureUrlReturnError() {
+//
+//        when(captureApiClient.captureUrl(REQUEST_ID, URL))
+//                .thenReturn(Either.left(buildErrorResponse(REQUEST_ID, "something went wrong")));
+//
+//        final var result = captureService.captureUrl(REQUEST_ID, URL);
+//
+//        assertThat(result.isLeft()).isTrue();
+//        assertThat(result.getLeft()).isEqualTo("something went wrong");
+//
+//        verify(captureRepository).save(any(CaptureHistory.class));
+//        verify(captureApiClient).captureUrl(REQUEST_ID, URL);
+//    }
+
+//    @Test
+//    void testCaptureUrlThrowsException() {
+//
+//        when(captureApiClient.captureUrl(REQUEST_ID, URL))
+//                .thenReturn(Either.right(buildCaptureResponse(REQUEST_ID, URL)));
+//
+//        when(captureRepository.save(any(CaptureHistory.class)))
+//                .thenThrow(new RuntimeException("expected exception"));
+//
+//        final var result = captureService.captureUrl(REQUEST_ID, URL);
+//
+//        assertThat(result.isLeft()).isTrue();
+//        assertThat(result.getLeft()).isEqualTo(String.format("can't capture url: %s", URL));
+//
+//        verify(captureRepository).save(any(CaptureHistory.class));
+//    }
+
+
 }
